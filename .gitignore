@@ -1,0 +1,11 @@
+/.env
+/.vscode
+./.idea
+/www/.idea/*
+/config/*
+/data/*
+/logs/*
+/www/**
+.DS_Store
+/buildtest
+/vendor
