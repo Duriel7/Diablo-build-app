@@ -1,20 +1,18 @@
 services:
   web:
-    build:
-      context: ./bin/${PHPVERSION}
-    container_name: "${COMPOSE_PROJECT_NAME}-${PHPVERSION}"
+    build: .
+    container_name: diablo-web
     restart: always
     ports:
       - "8080:80"
     volumes:
       - .:/var/www/html
-    links:
+    depends_on:
       - db
 
   db:
-    build:
-      context: "./bin/${DATABASE}"
-    container_name: "${COMPOSE_PROJECT_NAME}-${DATABASE}"
+    image: mariadb:10.11
+    container_name: diablo-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -28,11 +26,15 @@ services:
 
   admin:
     image: phpmyadmin/phpmyadmin
+    container_name: diablo-pma
     ports:
       - "8081:80"
     environment:
       PMA_HOST: db
       PMA_USER: diablo
       PMA_PASSWORD: diablo
-    links:
+    depends_on:
       - db
+
+volumes:
+  db_data:
