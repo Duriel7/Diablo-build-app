@@ -27,7 +27,7 @@ migrate_working_dir/
 # is commented out by default.
 .vscode/
 /buildtest
-/backend/api/vendor/
+/vendor
 
 # Flutter/Dart/Pub related
 **/doc/api/
