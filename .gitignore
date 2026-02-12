@@ -3,7 +3,8 @@
 *.log
 *.pyc
 *.swp
-/backend/api/.env
+/api/.env
+.env
 /config/*
 /logs/*
 .DS_Store
