@@ -6,149 +6,149 @@ use Diablo\Database\DatabaseConnection;
 
 class Build implements \JsonSerializable {
     //Properties
-    private ?int $Id = null;
-    private ?string $Name = null;
-    private ?string $CharacterClass = null;
-    private ?string $Description = null; //abstract about the build, can be empty
-    private ?string $Author = null;
-    private ?string $Game = null;
-    private ?bool $IsDraft = false; //if drafted, it will be visible only to the author and admins + it won't increment version when updated
-    private ?int $Version = null; //auto increment in database with each update
-    private ?\DateTime $CreatedAt = null;
-    private ?\DateTime $UpdatedAt = null;
-    private ?string $ImageRepository = null;
-    private ?string $ImageFileName = null;
+    private int $id = null;
+    private string $name = null;
+    private string $characterClass = null;
+    private ?string $description = null; //abstract about the build, can be empty
+    private string $author = null;
+    private string $game = null;
+    private bool $isDraft = false; //if drafted, it will be visible only to the author and admins + it won't increment version when updated
+    private int $version = 0; //auto increment in database with each update
+    private \DateTime $createdAt;
+    private \DateTime $updatedAt = null;
+    private ?string $imageRepository = null;
+    private ?string $imageFileName = null;
 
     //Getters and Setters
     public function getId(): ?int
     {
-        return $this->Id;
+        return $this->id;
     }
 
-    public function setId(?int $Id): Build
+    public function setId(?int $id): Build
     {
-        $this->Id = $Id;
+        $this->id = $id;
         return $this;
     }
 
     public function getName(): ?string
     {
-        return $this->Name;
+        return $this->name;
     }
 
-    public function setName(?string $Name): Build
+    public function setName(?string $name): Build
     {
-        $this->Name = $Name;
+        $this->name = $name;
         return $this;
     }
 
     public function getCharacterClass(): ?string
     {
-        return $this->CharacterClass;
+        return $this->characterClass;
     }
 
-    public function setCharacterClass(?string $CharacterClass): Build
+    public function setCharacterClass(?string $characterClass): Build
     {
-        $this->CharacterClass = $CharacterClass;
+        $this->characterClass = $characterClass;
         return $this;
     }
 
     public function getDescription(): ?string
     {
-        return $this->Description;
+        return $this->description;
     }
 
-    public function setDescription(?string $Description): Build
+    public function setDescription(?string $description): Build
     {
-        $this->Description = $Description;
+        $this->description = $description;
         return $this;
     }
 
     public function getAuthor(): ?string
     {
-        return $this->Author;
+        return $this->author;
     }
 
-    public function setAuthor(?string $Author): Build
+    public function setAuthor(?string $author): Build
     {
-        $this->Author = $Author;
+        $this->author = $author;
         return $this;
     }
 
     public function getGame(): ?string
     {
-        return $this->Game;
+        return $this->game;
     }
 
-    public function setGame(?string $Game): Build
+    public function setGame(?string $game): Build
     {
-        $this->Game = $Game;
+        $this->game = $game;
         return $this;
     }
 
     public function getIsDraft(): ?bool
     {
-        return $this->IsDraft;
+        return $this->isDraft;
     }
 
-    public function setIsDraft(?bool $IsDraft): Build
+    public function setIsDraft(?bool $isDraft): Build
     {
-        $this->IsDraft = $IsDraft;
+        $this->isDraft = $isDraft;
         return $this;
     }
 
     public function getVersion(): ?int
     {
-        return $this->Version;
+        return $this->version;
     }
 
-    public function setVersion(?int $Version): Build
+    public function setVersion(?int $version): Build
     {
-        $this->Version = $Version;
+        $this->version = $version;
         return $this;
     }
 
     public function getDateCreation(): ?\DateTime
     {
-        return $this->CreatedAt;
+        return $this->createdAt;
     }
 
-    public function setDateCreation(?\DateTime $CreatedAt): Build
+    public function setDateCreation(?\DateTime $createdAt): Build
     {
-        $this->CreatedAt = $CreatedAt;
+        $this->createdAt = $createdAt;
         return $this;
     }
 
     public function getUpdatedAt(): ?\DateTime
     {
-        return $this->UpdatedAt;
+        return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTime $UpdatedAt): Build
+    public function setUpdatedAt(?\DateTime $updatedAt): Build
     {
-        $this->UpdatedAt = $UpdatedAt;
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
     public function getImageRepository(): ?string
     {
-        return $this->ImageRepository;
+        return $this->imageRepository;
     }
 
-    public function setImageRepository(?string $ImageRepository): Build
+    public function setImageRepository(?string $imageRepository): Build
     {
-        $this->ImageRepository = $ImageRepository;
+        $this->imageRepository = $imageRepository;
         return $this;
     }
 
     public function getImageFileName(): ?string
     {
-        return $this->ImageFileName;
+        return $this->imageFileName;
     }
 
-    public function setImageFileName(?string $ImageFileName): Build
+    public function setImageFileName(?string $imageFileName): Build
     {
-        $this->ImageFileName = $ImageFileName;
+        $this->imageFileName = $imageFileName;
         return $this;
     }
 
@@ -157,7 +157,7 @@ class Build implements \JsonSerializable {
         //Connecting to DB
         $db = DatabaseConnection::getInstance();
         //Preparing statement
-        $statement = $db->prepare("SELECT * FROM builds order by Id DESC LIMIT :limit");
+        $statement = $db->prepare("SELECT * FROM builds order by id DESC LIMIT :limit");
         $statement->bindValue(':limit', $number, \PDO::PARAM_INT); // Limiting number of builds returned to user input
         //Execute statement
         $statement->execute();
@@ -168,18 +168,18 @@ class Build implements \JsonSerializable {
         $buildsArray = [];
         foreach ($results as $result) {
             $build = new Build();
-            $build->setId($result['Id']);
-            $build->setName($result['Name']);
-            $build->setCharacterClass($result['CharacterClass']);
-            $build->setDescription($result['Description']);
-            $build->setAuthor($result['Author']);
-            $build->setGame($result['Game']);
-            $build->setIsDraft($result['IsDraft']);
-            $build->setVersion($result['Version']);
-            $build->setDateCreation(new \DateTime($result['CreatedAt']));
-            $build->setUpdatedAt(new \DateTime($result['UpdatedAt']));
-            $build->setImageRepository($result['ImageRepository']);
-            $build->setImageFileName($result['ImageFileName']);
+            $build->setId($result['id']);
+            $build->setName($result['name']);
+            $build->setCharacterClass($result['characterClass']);
+            $build->setDescription($result['description']);
+            $build->setAuthor($result['author']);
+            $build->setGame($result['game']);
+            $build->setIsDraft($result['isDraft']);
+            $build->setVersion($result['version']);
+            $build->setDateCreation(new \DateTime($result['createdAt']));
+            $build->setUpdatedAt(new \DateTime($result['updatedAt']));
+            $build->setImageRepository($result['imageRepository']);
+            $build->setImageFileName($result['imageFileName']);
             $buildsArray[] = $build;
         }
         return $buildsArray;
@@ -189,7 +189,7 @@ class Build implements \JsonSerializable {
         //Connecting to DB
         $db = DatabaseConnection::getInstance();
         //Preparing statement
-        $statement = $db->prepare("SELECT * FROM builds WHERE Id = :id");
+        $statement = $db->prepare("SELECT * FROM builds WHERE id = :id");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         //Execute statement
         $statement->execute();
@@ -198,18 +198,18 @@ class Build implements \JsonSerializable {
 
         if ($result) {
             $build = new Build();
-            $build->setId($result['Id']);
-            $build->setName($result['Name']);
-            $build->setCharacterClass($result['CharacterClass']);
-            $build->setDescription($result['Description']);
-            $build->setAuthor($result['Author']);
-            $build->setGame($result['Game']);
-            $build->setIsDraft($result['IsDraft']);
-            $build->setVersion($result['Version']);
-            $build->setDateCreation(new \DateTime($result['CreatedAt']));
-            $build->setUpdatedAt(new \DateTime($result['UpdatedAt']));
-            $build->setImageRepository($result['ImageRepository']);
-            $build->setImageFileName($result['ImageFileName']);
+            $build->setId($result['id']);
+            $build->setName($result['name']);
+            $build->setCharacterClass($result['characterClass']);
+            $build->setDescription($result['description']);
+            $build->setAuthor($result['author']);
+            $build->setGame($result['game']);
+            $build->setIsDraft($result['isDraft']);
+            $build->setVersion($result['version']);
+            $build->setDateCreation(new \DateTime($result['createdAt']));
+            $build->setUpdatedAt(new \DateTime($result['updatedAt']));
+            $build->setImageRepository($result['imageRepository']);
+            $build->setImageFileName($result['imageFileName']);
             return $build;
         }
         return null; // Return null if no build found with the given ID
@@ -220,7 +220,7 @@ class Build implements \JsonSerializable {
             //Connecting to DB
             $db = DatabaseConnection::getInstance();
             //Preparing statement
-            $statement = $db->prepare("INSERT INTO builds (Name, Author, Game, IsDraft, Version, CreatedAt, UpdatedAt, ImageRepository, ImageFileName) VALUES (:name, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
+            $statement = $db->prepare("INSERT INTO builds (name, characterClass, description, author, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
             $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
             $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
             $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
@@ -247,7 +247,7 @@ class Build implements \JsonSerializable {
         //Connecting to DB
         $db = DatabaseConnection::getInstance();
         //Preparing statement
-        $statement = $db->prepare("UPDATE builds SET Name = :name, Author = :author, Game = :game, IsDraft = :isDraft, Version = :version, CreatedAt = :createdAt, UpdatedAt = :updatedAt, ImageRepository = :imageRepository, ImageFileName = :imageFileName WHERE Id = :id");
+        $statement = $db->prepare("UPDATE builds SET name = :name, characterClass = :characterClass, description = :description, author = :author, game = :game, isDraft = :isDraft, version = :version, createdAt = :createdAt, updatedAt = :updatedAt, imageRepository = :imageRepository, imageFileName = :imageFileName WHERE id = :id");
         $statement->bindValue(':id', $build->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
@@ -270,7 +270,7 @@ class Build implements \JsonSerializable {
         //Connecting to DB
         $db = DatabaseConnection::getInstance();
         //Preparing statement
-        $statement = $db->prepare("DELETE FROM builds WHERE Id = :id");
+        $statement = $db->prepare("DELETE FROM builds WHERE id = :id");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         //Execute statement
         $statement->execute();
@@ -280,7 +280,7 @@ class Build implements \JsonSerializable {
         //Connecting to DB
         $db = DatabaseConnection::getInstance();
         //Preparing statement
-        $statement = $db->prepare("SELECT * FROM builds WHERE Name LIKE :searchTerm OR Author LIKE :searchTerm OR CharacterClass LIKE :searchTerm OR Description LIKE :searchTerm");
+        $statement = $db->prepare("SELECT * FROM builds WHERE name LIKE :searchTerm OR author LIKE :searchTerm OR characterClass LIKE :searchTerm OR description LIKE :searchTerm");
         $statement->bindValue(':searchTerm', '%' . $searchTerm . '%', \PDO::PARAM_STR);
         //Execute statement
         $statement->execute();
@@ -291,18 +291,18 @@ class Build implements \JsonSerializable {
         $buildsArray = [];
         foreach ($results as $result) {
             $build = new Build();
-            $build->setId($result['Id']);
-            $build->setName($result['Name']);
-            $build->setCharacterClass($result['CharacterClass']);
-            $build->setDescription($result['Description']);
-            $build->setAuthor($result['Author']);
-            $build->setGame($result['Game']);
-            $build->setIsDraft($result['IsDraft']);
-            $build->setVersion($result['Version']);
-            $build->setDateCreation(new \DateTime($result['CreatedAt']));
-            $build->setUpdatedAt(new \DateTime($result['UpdatedAt']));
-            $build->setImageRepository($result['ImageRepository']);
-            $build->setImageFileName($result['ImageFileName']);
+            $build->setId($result['id']);
+            $build->setName($result['name']);
+            $build->setCharacterClass($result['characterClass']);
+            $build->setDescription($result['description']);
+            $build->setAuthor($result['author']);
+            $build->setGame($result['game']);
+            $build->setIsDraft($result['isDraft']);
+            $build->setVersion($result['version']);
+            $build->setDateCreation(new \DateTime($result['createdAt']));
+            $build->setUpdatedAt(new \DateTime($result['updatedAt']));
+            $build->setImageRepository($result['imageRepository']);
+            $build->setImageFileName($result['imageFileName']);
             $buildsArray[] = $build;
         }
         return $buildsArray;
@@ -311,18 +311,18 @@ class Build implements \JsonSerializable {
     // Implementing JsonSerializable to control how the object is serialized to JSON
     public function jsonSerialize(): mixed {
         return [
-            'Id' => $this->Id,
-            'Name' => $this->Name,
-            'CharacterClass' => $this->CharacterClass,
-            'Description' => $this->Description,
-            'Author' => $this->Author,
-            'Game' => $this->Game,
-            'IsDraft' => $this->IsDraft,
-            'Version' => $this->Version,
-            'CreatedAt' => $this->CreatedAt?->format('Y-m-d H:i:s'),
-            'UpdatedAt' => $this->UpdatedAt?->format('Y-m-d H:i:s'),
-            'ImageRepository' => $this->ImageRepository,
-            'ImageFileName' => $this->ImageFileName
+            'Id' => $this->id,
+            'Name' => $this->name,
+            'CharacterClass' => $this->characterClass,
+            'Description' => $this->description,
+            'Author' => $this->author,
+            'Game' => $this->game,
+            'IsDraft' => $this->isDraft,
+            'Version' => $this->version,
+            'CreatedAt' => $this->createdAt?->format('Y-m-d H:i:s'),
+            'UpdatedAt' => $this->updatedAt?->format('Y-m-d H:i:s'),
+            'ImageRepository' => $this->imageRepository,
+            'ImageFileName' => $this->imageFileName
         ];
     }
 }
