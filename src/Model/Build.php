@@ -6,18 +6,18 @@ use Diablo\Database\DatabaseConnection;
 
 class Build implements \JsonSerializable {
     //Properties
-    private int $id = null;
-    private string $name = null;
-    private string $characterClass = null;
-    private ?string $description = null; //abstract about the build, can be empty
-    private string $author = null;
-    private string $game = null;
-    private bool $isDraft = false; //if drafted, it will be visible only to the author and admins + it won't increment version when updated
-    private int $version = 0; //auto increment in database with each update
+    private int $id;
+    private string $name;
+    private string $characterClass;
+    private ?string $description; //abstract about the build, can be empty
+    private string $author;
+    private string $game;
+    private bool $isDraft; //if drafted, it will be visible only to the author and admins + it won't increment version when updated
+    private int $version; //auto increment in database with each update
     private \DateTime $createdAt;
-    private \DateTime $updatedAt = null;
-    private ?string $imageRepository = null;
-    private ?string $imageFileName = null;
+    private ?\DateTime $updatedAt;
+    private ?string $imageRepository;
+    private ?string $imageFileName;
 
     //Getters and Setters
     public function getId(): ?int
