@@ -8,6 +8,8 @@ class Build implements \JsonSerializable {
     //Properties
     private ?int $Id = null;
     private ?string $Name = null;
+    private ?string $CharacterClass = null;
+    private ?string $Description = null; //abstract about the build, can be empty
     private ?string $Author = null;
     private ?string $Game = null;
     private ?bool $IsDraft = false; //if drafted, it will be visible only to the author and admins + it won't increment version when updated
@@ -37,6 +39,28 @@ class Build implements \JsonSerializable {
     public function setName(?string $Name): Build
     {
         $this->Name = $Name;
+        return $this;
+    }
+
+    public function getCharacterClass(): ?string
+    {
+        return $this->CharacterClass;
+    }
+
+    public function setCharacterClass(?string $CharacterClass): Build
+    {
+        $this->CharacterClass = $CharacterClass;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->Description;
+    }
+
+    public function setDescription(?string $Description): Build
+    {
+        $this->Description = $Description;
         return $this;
     }
 
@@ -146,6 +170,8 @@ class Build implements \JsonSerializable {
             $build = new Build();
             $build->setId($result['Id']);
             $build->setName($result['Name']);
+            $build->setCharacterClass($result['CharacterClass']);
+            $build->setDescription($result['Description']);
             $build->setAuthor($result['Author']);
             $build->setGame($result['Game']);
             $build->setIsDraft($result['IsDraft']);
@@ -174,6 +200,8 @@ class Build implements \JsonSerializable {
             $build = new Build();
             $build->setId($result['Id']);
             $build->setName($result['Name']);
+            $build->setCharacterClass($result['CharacterClass']);
+            $build->setDescription($result['Description']);
             $build->setAuthor($result['Author']);
             $build->setGame($result['Game']);
             $build->setIsDraft($result['IsDraft']);
@@ -194,6 +222,8 @@ class Build implements \JsonSerializable {
             //Preparing statement
             $statement = $db->prepare("INSERT INTO builds (Name, Author, Game, IsDraft, Version, CreatedAt, UpdatedAt, ImageRepository, ImageFileName) VALUES (:name, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
             $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
+            $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
+            $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
             $statement->bindValue(':author', $build->getAuthor(), \PDO::PARAM_STR);
             $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
             $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
@@ -220,6 +250,8 @@ class Build implements \JsonSerializable {
         $statement = $db->prepare("UPDATE builds SET Name = :name, Author = :author, Game = :game, IsDraft = :isDraft, Version = :version, CreatedAt = :createdAt, UpdatedAt = :updatedAt, ImageRepository = :imageRepository, ImageFileName = :imageFileName WHERE Id = :id");
         $statement->bindValue(':id', $build->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
+        $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
         $statement->bindValue(':author', $build->getAuthor(), \PDO::PARAM_STR);
         $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
         $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
@@ -244,11 +276,45 @@ class Build implements \JsonSerializable {
         $statement->execute();
     }
 
+    public static function SqlSearchBuilds(string $searchTerm): array {
+        //Connecting to DB
+        $db = DatabaseConnection::getInstance();
+        //Preparing statement
+        $statement = $db->prepare("SELECT * FROM builds WHERE Name LIKE :searchTerm OR Author LIKE :searchTerm OR CharacterClass LIKE :searchTerm OR Description LIKE :searchTerm");
+        $statement->bindValue(':searchTerm', '%' . $searchTerm . '%', \PDO::PARAM_STR);
+        //Execute statement
+        $statement->execute();
+        //Fetching results
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        //Mapping results to build objects
+        $buildsArray = [];
+        foreach ($results as $result) {
+            $build = new Build();
+            $build->setId($result['Id']);
+            $build->setName($result['Name']);
+            $build->setCharacterClass($result['CharacterClass']);
+            $build->setDescription($result['Description']);
+            $build->setAuthor($result['Author']);
+            $build->setGame($result['Game']);
+            $build->setIsDraft($result['IsDraft']);
+            $build->setVersion($result['Version']);
+            $build->setDateCreation(new \DateTime($result['CreatedAt']));
+            $build->setUpdatedAt(new \DateTime($result['UpdatedAt']));
+            $build->setImageRepository($result['ImageRepository']);
+            $build->setImageFileName($result['ImageFileName']);
+            $buildsArray[] = $build;
+        }
+        return $buildsArray;
+    }
+
     // Implementing JsonSerializable to control how the object is serialized to JSON
     public function jsonSerialize(): mixed {
         return [
             'Id' => $this->Id,
             'Name' => $this->Name,
+            'CharacterClass' => $this->CharacterClass,
+            'Description' => $this->Description,
             'Author' => $this->Author,
             'Game' => $this->Game,
             'IsDraft' => $this->IsDraft,
