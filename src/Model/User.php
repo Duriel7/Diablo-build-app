@@ -6,7 +6,7 @@ use Diablo\Database\DatabaseConnection;
 
 class User {
     //Properties
-    private ?int  $Id = null;
+    private ?int  $Id;
     private string $Nickname;
     private ?string $Bio; //abstract about the user, can be empty
     private \DateTime $RegisteredAt;
