@@ -2,7 +2,7 @@
 
 namespace Diablo\Model;
 use JsonSerializable;
-use Diablo\Database\DatabaseConnection;
+use Diablo\Data\DataBaseConnection;
 
 class Build implements \JsonSerializable {
     //Properties
@@ -155,7 +155,7 @@ class Build implements \JsonSerializable {
     //Methods for SQL queries
     public static function SqlGetAllBuilds(int $number): array {
         //Connecting to DB
-        $db = DatabaseConnection::getInstance();
+        $db = DataBaseConnection::getInstance();
         //Preparing statement
         $statement = $db->prepare("SELECT * FROM builds order by id DESC LIMIT :limit");
         $statement->bindValue(':limit', $number, \PDO::PARAM_INT); // Limiting number of builds returned to user input
@@ -187,7 +187,7 @@ class Build implements \JsonSerializable {
 
     public static function SqlGetBuildById(int $id): ?Build {
         //Connecting to DB
-        $db = DatabaseConnection::getInstance();
+        $db = DataBaseConnection::getInstance();
         //Preparing statement
         $statement = $db->prepare("SELECT * FROM builds WHERE id = :id");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
@@ -218,7 +218,7 @@ class Build implements \JsonSerializable {
     public static function SqlCreateBuild(Build $build): int {
         try {
             //Connecting to DB
-            $db = DatabaseConnection::getInstance();
+            $db = DataBaseConnection::getInstance();
             //Preparing statement
             $statement = $db->prepare("INSERT INTO builds (name, characterClass, description, author, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
             $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
@@ -245,7 +245,7 @@ class Build implements \JsonSerializable {
 
     public static function SqlUpdateBuild(Build $build): ?Build {
         //Connecting to DB
-        $db = DatabaseConnection::getInstance();
+        $db = DataBaseConnection::getInstance();
         //Preparing statement
         $statement = $db->prepare("UPDATE builds SET name = :name, characterClass = :characterClass, description = :description, author = :author, game = :game, isDraft = :isDraft, version = :version, createdAt = :createdAt, updatedAt = :updatedAt, imageRepository = :imageRepository, imageFileName = :imageFileName WHERE id = :id");
         $statement->bindValue(':id', $build->getId(), \PDO::PARAM_INT);
@@ -268,7 +268,7 @@ class Build implements \JsonSerializable {
 
     public static function SqlDeleteBuild(int $id): void {
         //Connecting to DB
-        $db = DatabaseConnection::getInstance();
+        $db = DataBaseConnection::getInstance();
         //Preparing statement
         $statement = $db->prepare("DELETE FROM builds WHERE id = :id");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
@@ -278,7 +278,7 @@ class Build implements \JsonSerializable {
 
     public static function SqlSearchBuilds(string $searchTerm): array {
         //Connecting to DB
-        $db = DatabaseConnection::getInstance();
+        $db = DataBaseConnection::getInstance();
         //Preparing statement
         $statement = $db->prepare("SELECT * FROM builds WHERE name LIKE :searchTerm OR author LIKE :searchTerm OR characterClass LIKE :searchTerm OR description LIKE :searchTerm");
         $statement->bindValue(':searchTerm', '%' . $searchTerm . '%', \PDO::PARAM_STR);
