@@ -2,21 +2,18 @@
 namespace Diablo\Repository;
 
 use Diablo\Model\Build;
-use Diablo\Data\DataBaseConnection;
 
 class BuildRepository {
-    private DataBaseConnection $db;
+    private \PDO $db;
 
-    public function __construct(DataBaseConnection $db) {
+    public function __construct(\PDO $db) {
         $this->db = $db;
     }
 
     //Methods for SQL queries
-    public static function SqlGetAllBuilds(int $number): array {
-        //Connecting to DB
-        $db = DataBaseConnection::getInstance();
+    public function SqlGetAllBuilds(int $number): array {
         //Preparing statement
-        $statement = $db->prepare("SELECT * FROM builds order by id DESC LIMIT :limit");
+        $statement = $this->db->prepare("SELECT * FROM builds order by id DESC LIMIT :limit");
         $statement->bindValue(':limit', $number, \PDO::PARAM_INT); // Limiting number of builds returned to user input
         //Execute statement
         $statement->execute();
@@ -35,7 +32,7 @@ class BuildRepository {
             $build->setGame($result['game']);
             $build->setIsDraft((bool)$result['isDraft']);
             $build->setVersion($result['version']);
-            $build->setDateCreation(new \DateTime($result['createdAt']));
+            $build->setCreatedAt(new \DateTimeImmutable($result['createdAt']));
             $build->setUpdatedAt($result['updatedAt'] ? new \DateTime($result['updatedAt']) : null);
             $build->setImageRepository($result['imageRepository']);
             $build->setImageFileName($result['imageFileName']);
@@ -44,11 +41,9 @@ class BuildRepository {
         return $buildsArray;
     }
 
-    public static function SqlGetBuildById(int $id): ?Build {
-        //Connecting to DB
-        $db = DataBaseConnection::getInstance();
+    public function SqlGetBuildById(int $id): ?Build {
         //Preparing statement
-        $statement = $db->prepare("SELECT * FROM builds WHERE id = :id");
+        $statement = $this->db->prepare("SELECT * FROM builds WHERE id = :id");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         //Execute statement
         $statement->execute();
@@ -65,7 +60,7 @@ class BuildRepository {
             $build->setGame($result['game']);
             $build->setIsDraft((bool)$result['isDraft']);
             $build->setVersion($result['version']);
-            $build->setDateCreation(new \DateTime($result['createdAt']));
+            $build->setCreatedAt(new \DateTimeImmutable($result['createdAt']));
             $build->setUpdatedAt($result['updatedAt'] ? new \DateTime($result['updatedAt']) : null);
             $build->setImageRepository($result['imageRepository']);
             $build->setImageFileName($result['imageFileName']);
@@ -74,12 +69,10 @@ class BuildRepository {
         return null; // Return null if no build found with the given ID
     }
 
-    public static function SqlCreateBuild(Build $build): int {
+    public function SqlCreateBuild(Build $build): ?int {
         try {
-            //Connecting to DB
-            $db = DataBaseConnection::getInstance();
             //Preparing statement
-            $statement = $db->prepare("INSERT INTO builds (name, characterClass, description, author, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
+            $statement = $this->db->prepare("INSERT INTO builds (name, characterClass, description, author, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
             $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
             $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
             $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
@@ -87,26 +80,24 @@ class BuildRepository {
             $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
             $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
             $statement->bindValue(':version', $build->getVersion(), \PDO::PARAM_INT);
-            $statement->bindValue(':createdAt', $build->getDateCreation()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
-            $statement->bindValue(':updatedAt', $build->getUpdatedAt()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
+            $statement->bindValue(':createdAt', $build->getCreatedAt()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
+            $statement->bindValue(':updatedAt', $build->getUpdatedAt() ? $build->getUpdatedAt()->format('Y-m-d H:i:s') : null, $build->getUpdatedAt() ? \PDO::PARAM_STR : \PDO::PARAM_NULL);
             $statement->bindValue(':imageRepository', $build->getImageRepository(), \PDO::PARAM_STR);
             $statement->bindValue(':imageFileName', $build->getImageFileName(), \PDO::PARAM_STR);
             //Execute statement
             $statement->execute();
 
-            return $db->lastInsertId(); // Return the ID of the newly created build
+            return $this->db->lastInsertId(); // Return the ID of the newly created build
         } catch (\Exception $e) {
             // Handle exception (you can log it or rethrow it)
             error_log("Error creating build: " . $e->getMessage());
-            return false;
+            return null; //FIX ME : need to throw an exception
         }
     }
 
-    public static function SqlUpdateBuild(Build $build): ?Build {
-        //Connecting to DB
-        $db = DataBaseConnection::getInstance();
+    public function SqlUpdateBuild(Build $build): ?Build {
         //Preparing statement
-        $statement = $db->prepare("UPDATE builds SET name = :name, characterClass = :characterClass, description = :description, author = :author, game = :game, isDraft = :isDraft, version = :version, createdAt = :createdAt, updatedAt = :updatedAt, imageRepository = :imageRepository, imageFileName = :imageFileName WHERE id = :id");
+        $statement = $this->db->prepare("UPDATE builds SET name = :name, characterClass = :characterClass, description = :description, author = :author, game = :game, isDraft = :isDraft, version = :version, updatedAt = :updatedAt, imageRepository = :imageRepository, imageFileName = :imageFileName WHERE id = :id");
         $statement->bindValue(':id', $build->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
@@ -115,8 +106,7 @@ class BuildRepository {
         $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
         $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
         $statement->bindValue(':version', $build->getVersion(), \PDO::PARAM_INT);
-        $statement->bindValue(':createdAt', $build->getDateCreation()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
-        $statement->bindValue(':updatedAt', $build->getUpdatedAt()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
+        $statement->bindValue(':updatedAt', $build->getUpdatedAt() ? $build->getUpdatedAt()->format('Y-m-d H:i:s') : null, $build->getUpdatedAt() ? \PDO::PARAM_STR : \PDO::PARAM_NULL);
         $statement->bindValue(':imageRepository', $build->getImageRepository(), \PDO::PARAM_STR);
         $statement->bindValue(':imageFileName', $build->getImageFileName(), \PDO::PARAM_STR);
         //Execute statement
@@ -125,21 +115,17 @@ class BuildRepository {
         return $build;
     }
 
-    public static function SqlDeleteBuild(int $id): void {
-        //Connecting to DB
-        $db = DataBaseConnection::getInstance();
+    public function SqlDeleteBuild(int $id): void {
         //Preparing statement
-        $statement = $db->prepare("DELETE FROM builds WHERE id = :id");
+        $statement = $this->db->prepare("DELETE FROM builds WHERE id = :id");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         //Execute statement
         $statement->execute();
     }
 
-    public static function SqlSearchBuilds(string $searchTerm): array {
-        //Connecting to DB
-        $db = DataBaseConnection::getInstance();
+    public function SqlSearchBuilds(string $searchTerm): array {
         //Preparing statement
-        $statement = $db->prepare("SELECT * FROM builds WHERE name LIKE :searchTerm OR author LIKE :searchTerm OR characterClass LIKE :searchTerm OR description LIKE :searchTerm");
+        $statement = $this->db->prepare("SELECT * FROM builds WHERE name LIKE :searchTerm OR author LIKE :searchTerm OR characterClass LIKE :searchTerm OR description LIKE :searchTerm");
         $statement->bindValue(':searchTerm', '%' . $searchTerm . '%', \PDO::PARAM_STR);
         //Execute statement
         $statement->execute();
@@ -158,7 +144,7 @@ class BuildRepository {
             $build->setGame($result['game']);
             $build->setIsDraft((bool)$result['isDraft']);
             $build->setVersion($result['version']);
-            $build->setDateCreation(new \DateTime($result['createdAt']));
+            $build->setCreatedAt(new \DateTimeImmutable($result['createdAt']));
             $build->setUpdatedAt($result['updatedAt'] ? new \DateTime($result['updatedAt']) : null);
             $build->setImageRepository($result['imageRepository']);
             $build->setImageFileName($result['imageFileName']);
