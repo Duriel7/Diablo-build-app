@@ -1,21 +1,20 @@
 <?php
 namespace Diablo\Model;
 
-use DateTime;
-use Diablo\Database\DatabaseConnection;
+use JsonSerializable;
 
-class User {
+class User implements JsonSerializable{
     //Properties
-    private ?int  $Id;
-    private string $Nickname;
-    private ?string $Bio; //abstract about the user, can be empty
-    private \DateTime $RegisteredAt;
-    private string $City;
-    private ?float $latitude;
-    private ?float $longitude;
-    private string $Email;
-    private string $Password;
-    private string $Role;
-    private ?string $AvatarRepository;
-    private ?string $AvatarFileName;
+    private int  $id;
+    private string $nickname;
+    private ?string $bio; //abstract about the user, can be empty
+    private \DateTimeImmutable $registeredAt;
+    private string $city;
+    private float $latitude; //filled when user creates an account, used for geolocation and local build suggestions
+    private float $longitude; //filled when user creates an account, used for geolocation and local build suggestions
+    private string $email;
+    private string $passwordHashed;
+    private string $role; //user or admin
+    private ?string $avatarRepository;
+    private ?string $avatarFileName;
 }

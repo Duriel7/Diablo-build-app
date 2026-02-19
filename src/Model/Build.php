@@ -2,7 +2,6 @@
 
 namespace Diablo\Model;
 use JsonSerializable;
-use Diablo\Data\DataBaseConnection;
 
 class Build implements \JsonSerializable {
     //Properties
@@ -14,7 +13,7 @@ class Build implements \JsonSerializable {
     private string $game;
     private bool $isDraft; //if drafted, it will be visible only to the author and admins + it won't increment version when updated
     private int $version; //auto increment in database with each update
-    private \DateTime $createdAt;
+    private \DateTimeImmutable $createdAt;
     private ?\DateTime $updatedAt;
     private ?string $imageRepository;
     private ?string $imageFileName;
@@ -108,12 +107,12 @@ class Build implements \JsonSerializable {
         return $this;
     }
 
-    public function getDateCreation(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setDateCreation(?\DateTime $createdAt): Build
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): Build
     {
         $this->createdAt = $createdAt;
         return $this;
