@@ -18,23 +18,23 @@ class User implements JsonSerializable{
     private ?string $avatarRepository;
     private ?string $avatarFileName;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function setId(?int $id): User
+    public function setId(int $id): User
     {
         $this->id = $id;
         return $this;
     }
 
-    public function getNickname(): ?string
+    public function getNickname(): string
     {
         return $this->nickname;
     }
 
-    public function setNickname(?string $nickname): User
+    public function setNickname(string $nickname): User
     {
         $this->nickname = $nickname;
         return $this;
@@ -51,100 +51,100 @@ class User implements JsonSerializable{
         return $this;
     }
 
-    public function getRegisteredAt(): ?\DateTimeImmutable
+    public function getRegisteredAt(): \DateTimeImmutable
     {
         return $this->registeredAt;
     }
 
-    public function setRegisteredAt(?\DateTimeImmutable $registeredAt): User
+    public function setRegisteredAt(\DateTimeImmutable $registeredAt): User
     {
         $this->registeredAt = $registeredAt;
         return $this;
     }
 
-    public function getCity(): ?string
+    public function getCity(): string
     {
         return $this->city;
     }
 
-    public function setCity(?string $city): User
+    public function setCity(string $city): User
     {
         $this->city = $city;
         return $this;
     }
 
-    public function getLatitude(): ?float
+    public function getLatitude(): float
     {
         return $this->latitude;
     }
 
-    public function setLatitude(?float $latitude): User
+    public function setLatitude(float $latitude): User
     {
         $this->latitude = $latitude;
         return $this;
     }
 
-    public function getLongitude(): ?float
+    public function getLongitude(): float
     {
         return $this->longitude;
     }
 
-    public function setLongitude(?float $longitude): User
+    public function setLongitude(float $longitude): User
     {
         $this->longitude = $longitude;
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
         return $this->email;
     }
 
-    public function setEmail(?string $email): User
+    public function setEmail(string $email): User
     {
         $this->email = $email;
         return $this;
     }
 
-    public function getPasswordHashed(): ?string
+    public function getPasswordHashed(): string
     {
         return $this->passwordHashed;
     }
 
-    public function setPasswordHashed(?string $passwordHashed): User
+    public function setPasswordHashed(string $passwordHashed): User
     {
         $this->passwordHashed = $passwordHashed;
         return $this;
     }
 
-    public function getRole(): ?string
+    public function getRole(): string
     {
         return $this->role;
     }
 
-    public function setRole(?string $role): User
+    public function setRole(string $role): User
     {
         $this->role = $role;
         return $this;
     }
 
-    public function getAvatarRepository(): ?string
+    public function getAvatarRepository(): string
     {
         return $this->avatarRepository;
     }
 
-    public function setAvatarRepository(?string $avatarRepository): User
+    public function setAvatarRepository(string $avatarRepository): User
     {
         $this->avatarRepository = $avatarRepository;
         return $this;
     }
 
-    public function getAvatarFileName(): ?string
+    public function getAvatarFileName(): string
     {
         return $this->avatarFileName;
     }
 
-    public function setAvatarFileName(?string $avatarFileName): User
+    public function setAvatarFileName(string $avatarFileName): User
     {
         $this->avatarFileName = $avatarFileName;
         return $this;

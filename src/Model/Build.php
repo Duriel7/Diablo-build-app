@@ -3,7 +3,7 @@
 namespace Diablo\Model;
 use JsonSerializable;
 
-class Build implements \JsonSerializable {
+class Build implements JsonSerializable {
     //Properties
     private int $id;
     private string $name;
@@ -24,95 +24,95 @@ class Build implements \JsonSerializable {
         return $this->id;
     }
 
-    public function setId(?int $id): Build
+    public function setId(int $id): Build
     {
         $this->id = $id;
         return $this;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName(?string $name): Build
+    public function setName(string $name): Build
     {
         $this->name = $name;
         return $this;
     }
 
-    public function getCharacterClass(): ?string
+    public function getCharacterClass(): string
     {
         return $this->characterClass;
     }
 
-    public function setCharacterClass(?string $characterClass): Build
+    public function setCharacterClass(string $characterClass): Build
     {
         $this->characterClass = $characterClass;
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): Build
+    public function setDescription(string $description): Build
     {
         $this->description = $description;
         return $this;
     }
 
-    public function getAuthor(): ?string
+    public function getAuthor(): string
     {
         return $this->author;
     }
 
-    public function setAuthor(?string $author): Build
+    public function setAuthor(string $author): Build
     {
         $this->author = $author;
         return $this;
     }
 
-    public function getGame(): ?string
+    public function getGame(): string
     {
         return $this->game;
     }
 
-    public function setGame(?string $game): Build
+    public function setGame(string $game): Build
     {
         $this->game = $game;
         return $this;
     }
 
-    public function getIsDraft(): ?bool
+    public function getIsDraft(): bool
     {
         return $this->isDraft;
     }
 
-    public function setIsDraft(?bool $isDraft): Build
+    public function setIsDraft(bool $isDraft): Build
     {
         $this->isDraft = $isDraft;
         return $this;
     }
 
-    public function getVersion(): ?int
+    public function getVersion(): int
     {
         return $this->version;
     }
 
-    public function setVersion(?int $version): Build
+    public function setVersion(int $version): Build
     {
         $this->version = $version;
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): Build
+    public function setCreatedAt(\DateTimeImmutable $createdAt): Build
     {
         $this->createdAt = $createdAt;
         return $this;
