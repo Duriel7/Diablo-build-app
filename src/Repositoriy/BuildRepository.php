@@ -87,7 +87,7 @@ class BuildRepository {
             //Execute statement
             $statement->execute();
 
-            return $this->db->lastInsertId(); // Return the ID of the newly created build
+            return (int)$this->db->lastInsertId(); // Return the ID of the newly created build
         } catch (\Exception $e) {
             // Handle exception (you can log it or rethrow it)
             error_log("Error creating build: " . $e->getMessage());

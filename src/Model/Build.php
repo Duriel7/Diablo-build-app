@@ -19,7 +19,7 @@ class Build implements JsonSerializable {
     private ?string $imageFileName;
 
     //Getters and Setters
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -52,12 +52,12 @@ class Build implements JsonSerializable {
         return $this;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): Build
+    public function setDescription(?string $description): Build
     {
         $this->description = $description;
         return $this;
@@ -162,7 +162,7 @@ class Build implements JsonSerializable {
             'Game' => $this->game,
             'IsDraft' => $this->isDraft,
             'Version' => $this->version,
-            'CreatedAt' => $this->createdAt?->format('Y-m-d H:i:s'),
+            'CreatedAt' => $this->createdAt->format('Y-m-d H:i:s'),
             'UpdatedAt' => $this->updatedAt?->format('Y-m-d H:i:s'),
             'ImageRepository' => $this->imageRepository,
             'ImageFileName' => $this->imageFileName

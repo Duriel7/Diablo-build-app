@@ -128,23 +128,23 @@ class User implements JsonSerializable{
         return $this;
     }
 
-    public function getAvatarRepository(): string
+    public function getAvatarRepository(): ?string
     {
         return $this->avatarRepository;
     }
 
-    public function setAvatarRepository(string $avatarRepository): User
+    public function setAvatarRepository(?string $avatarRepository): User
     {
         $this->avatarRepository = $avatarRepository;
         return $this;
     }
 
-    public function getAvatarFileName(): string
+    public function getAvatarFileName(): ?string
     {
         return $this->avatarFileName;
     }
 
-    public function setAvatarFileName(string $avatarFileName): User
+    public function setAvatarFileName(?string $avatarFileName): User
     {
         $this->avatarFileName = $avatarFileName;
         return $this;
@@ -156,11 +156,10 @@ class User implements JsonSerializable{
             'id' => $this->id,
             'nickname' => $this->nickname,
             'bio' => $this->bio,
-            'registeredAt' => $this->registeredAt ? $this->registeredAt->format('Y-m-d H:i:s') : null,
+            'registeredAt' => $this->registeredAt->format('Y-m-d H:i:s'),
             'city' => $this->city,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
-            'email' => $this->email,
             'role' => $this->role,
             'avatarRepository' => $this->avatarRepository,
             'avatarFileName' => $this->avatarFileName
