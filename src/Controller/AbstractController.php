@@ -1,23 +1,22 @@
 <?php
 namespace Diablo\Controller;
 
-abstract class AbstractController {
-    protected $twig;
+use Diablo\Core\Request;
 
-    public function __construct()
+abstract class AbstractController
+{
+    protected Request $request;
+
+    public function __construct(Request $request)
     {
-        $loader = new \Twig\Loader\FilesystemLoader($_SERVER['DOCUMENT_ROOT'].'/../src/View');
-        $this->twig = new \Twig\Environment($loader, [
-            'cache' => $_SERVER['DOCUMENT_ROOT'].'/../var/cache'
-            ,'debug' => true
-        ]);
-        $this->twig->addExtension(new \Twig\Extension\DebugExtension());
+        $this->request = $request;
+    }
 
-        $fileExist = new \Twig\TwigFunction('file_exists', function($fullFileName){
-            return file_exists($fullFileName);
-        });
-        $this->twig->addFunction($fileExist);
-
-        $this->twig->addGlobal('session', $_SESSION);
+    protected function json(array $data, int $status = 200)
+    {
+        http_response_code($status);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
     }
 }

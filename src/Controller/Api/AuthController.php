@@ -2,11 +2,11 @@
 
 namespace Diablo\Controller\Api;
 
-use Diablo\Controller\AbstractController;
+use Diablo\Controller\Api\AbstractApiController;
 use Diablo\Service\AuthService;
 use Diablo\Core\Request;
 
-class AuthController extends AbstractController {
+class AuthController extends AbstractApiController {
     private AuthService $authService;
 
     public function __construct(Request $request, AuthService $authService)
