@@ -43,7 +43,7 @@ class BuildRepository {
 
     public function SqlGetBuildById(int $id): ?Build {
         //Preparing statement
-        $statement = $this->db->prepare("SELECT * FROM builds WHERE id = :id");
+        $statement = $this->db->prepare("SELECT * FROM builds WHERE id = :id LIMIT 1");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         //Execute statement
         $statement->execute();
