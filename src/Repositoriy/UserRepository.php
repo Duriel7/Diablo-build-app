@@ -43,7 +43,7 @@ class UserRepository {
 
     public function SqlGetUserById(int $id): ?User {
         //Preparing statement
-        $statement = $this->db->prepare("SELECT * FROM users WHERE id = :id");
+        $statement = $this->db->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         //Execute statement
         $statement->execute();
@@ -71,7 +71,7 @@ class UserRepository {
 
     public function SqlGetUserByEmail(string $email): ?User {
         //Preparing statement
-        $statement = $this->db->prepare("SELECT * FROM users WHERE email = :email");
+        $statement = $this->db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
         $statement->bindValue(':email', $email, \PDO::PARAM_STR);
         //Execute statement
         $statement->execute();
