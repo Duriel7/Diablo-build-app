@@ -1,7 +1,7 @@
 <?php
 namespace Diablo\Controller;
 
-abstract class MasterController {
+abstract class AbstractController {
     protected $twig;
 
     public function __construct()
