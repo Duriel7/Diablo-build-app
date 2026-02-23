@@ -69,6 +69,34 @@ class UserRepository {
         return null;
     }
 
+    public function SqlGetUserByEmail(string $email): ?User {
+        //Preparing statement
+        $statement = $this->db->prepare("SELECT * FROM users WHERE email = :email");
+        $statement->bindValue(':email', $email, \PDO::PARAM_STR);
+        //Execute statement
+        $statement->execute();
+        //Fetching result
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+            $user = new User();
+            $user->setId($result['id']);
+            $user->setNickname($result['nickname']);
+            $user->setBio($result['bio']);
+            $user->setRegisteredAt(new \DateTimeImmutable($result['registeredAt']));
+            $user->setCity($result['city']);
+            $user->setLatitude((float)$result['latitude']);
+            $user->setLongitude((float)$result['longitude']);
+            $user->setEmail($result['email']);
+            $user->setPasswordHashed($result['passwordHashed']);
+            $user->setRole($result['role']);
+            $user->setAvatarRepository($result['avatarRepository']);
+            $user->setAvatarFileName($result['avatarFileName']);
+            return $user;
+        }
+        return null;
+    }
+
     public function SqlCreateUser(User $user): ?int {
         try {
             //Preparing statement

@@ -20,13 +20,13 @@ class AuthService
 
     public function login(string $email, string $password): string
     {
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepository->SqlGetUserByEmail($email);
 
         if (!$user) {
             throw new \Exception("Invalid credentials.");
         }
 
-        if (!password_verify($password, $user->getPassword())) {
+        if (!password_verify($password, $user->getPasswordHashed())) {
             throw new \Exception("Invalid credentials.");
         }
 
