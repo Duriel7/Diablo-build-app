@@ -103,7 +103,7 @@ class BuildRepository {
     public function SqlCreateBuild(Build $build): ?int {
         try {
             //Preparing statement
-            $statement = $this->db->prepare("INSERT INTO builds (name, characterClass, description, author_id, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
+            $statement = $this->db->prepare("INSERT INTO builds (name, characterClass, description, author_id, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author_id, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
             $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
             $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
             $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
