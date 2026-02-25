@@ -5,8 +5,9 @@ namespace Diablo\Controller\Api;
 use Diablo\Core\Request;
 use Diablo\Repository\BuildRepository;
 use Diablo\Model\Build;
+use Diablo\Controller\Api\AbstractApiController;
 
-class BuildController
+class BuildController extends AbstractApiController
 {
     public function __construct(
         private Request $request,
@@ -25,10 +26,7 @@ class BuildController
             !isset($data['description']) ||
             !isset($data['game'])
         ) {
-            $this->json([
-                'success' => false,
-                'message' => 'Missing required fields'
-            ], 400);
+            $this->error('Missing required fields', 400);
         }
 
         $build = new Build();
@@ -48,17 +46,63 @@ class BuildController
         $id = $this->buildRepository->SqlCreateBuild($build);
 
         if (!$id) {
-            $this->json([
-                'success' => false,
-                'message' => 'Failed to create build'
-            ], 500);
+            $this->error('Failed to create build', 500);
         }
 
-        $this->json([
-            'success' => true,
-            'message' => 'Build created',
-            'id' => $id
-        ], 201);
+        $this->success(['id' => $id, 'message' => 'Build created'], 201);
+    }
+
+    /**
+     * Mettre à jour un build (Seulement si l'utilisateur est l'auteur)
+     */
+    public function update(int $id): void
+    {
+        $data = $this->request->getJson();
+        $build = $this->buildRepository->SqlGetBuildById($id);
+
+        if (!$build) {
+            $this->error('Build not found', 404);
+        }
+
+        // Sécurité : Vérifier si l'utilisateur est l'auteur ou un admin
+        if ($build->getAuthorId() !== $this->auth['id'] && $this->auth['role'] !== 'admin') {
+            $this->error('Unauthorized: You are not the author', 403);
+        }
+
+        // Mise à jour sélective
+        if (isset($data['name'])) $build->setName($data['name']);
+        if (isset($data['description'])) $build->setDescription($data['description']);
+        
+        $build->setVersion($build->getVersion() + 1); // On incrémente la version
+        $build->setUpdatedAt(new \DateTime());
+
+        $success = $this->buildRepository->SqlUpdateBuild($build);
+
+        if (!$success) {
+            $this->error('Update failed', 500);
+        }
+
+        $this->success(['message' => 'Build updated']);
+    }
+
+    /**
+     * Supprimer un build
+     */
+    public function delete(int $id): void
+    {
+        $build = $this->buildRepository->SqlGetBuildById($id);
+
+        if (!$build) {
+            $this->error('Build not found', 404);
+        }
+
+        // Même vérification de sécurité
+        if ($build->getAuthorId() !== $this->auth['id'] && $this->auth['role'] !== 'admin') {
+            $this->error('Unauthorized', 403);
+        }
+
+        $this->buildRepository->SqlDeleteBuild($id);
+        $this->success(['message' => 'Build deleted']);
     }
 
     public function index(): void {
@@ -69,7 +113,7 @@ class BuildController
         if ($limit < 1 || $limit > 100) $limit = 10;
 
         $offset = ($page - 1) * $limit;
-        
+
         $total = $this->buildRepository->SqlCountBuilds();
         $totalPages = (int) ceil($total / $limit);
 
@@ -83,11 +127,5 @@ class BuildController
             'total' => $total,
             'totalPages' => $totalPages,
         ]);
-    }
-
-    private function json(array $data, int $status = 200): never {
-        http_response_code($status);
-        echo json_encode($data);
-        exit;
     }
 }
