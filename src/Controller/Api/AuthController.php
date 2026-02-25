@@ -40,7 +40,7 @@ class AuthController extends AbstractApiController {
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
-                'message' => 'Invalid credentials.'
+                'message' => 'Auth Controller - Invalid credentials.' . $e->getMessage()
             ], 401);
         }
     }

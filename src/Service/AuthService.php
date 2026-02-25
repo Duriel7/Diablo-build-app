@@ -18,16 +18,15 @@ class AuthService
         $this->jwtService = $jwtService;
     }
 
-    public function login(string $email, string $password): string
-    {
+    public function login(string $email, string $password): string {
         $user = $this->userRepository->SqlGetUserByEmail($email);
 
         if (!$user) {
-            throw new \Exception("Invalid credentials.");
+            throw new \Exception("Invalid email.");
         }
 
         if (!password_verify($password, $user->getPasswordHashed())) {
-            throw new \Exception("Invalid credentials.");
+            throw new \Exception("Invalid password.");
         }
 
         return $this->jwtService->createToken([
