@@ -13,6 +13,7 @@ use Diablo\Service\AuthService;
 use Diablo\Controller\Api\AuthController;
 use Diablo\Controller\Api\BuildController;
 use Diablo\Controller\Api\UserController;
+use Diablo\Controller\Api\AdminController;
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -128,6 +129,30 @@ if ($uri === '/api/builds' && $method === 'GET') {
     );
 
     $controller->index();
+    exit;
+}
+
+//--- ADMIN ROUTES ---
+
+//Delete build (Admin)
+//Route: DELETE /api/admin/builds/{id}
+if (strpos($uri, '/api/admin/builds/') === 0 && $method === 'DELETE') {
+    $resourceId = (int)basename($uri);
+    $auth = $jwtMiddleware->requireAuth(); // Le middleware vérifie le token
+    
+    $controller = new AdminController($request, $buildRepository, $userRepository, $auth);
+    $controller->deleteBuild($resourceId);
+    exit;
+}
+
+//Delete user (Admin)
+//Route: DELETE /api/admin/users/{id}
+if (strpos($uri, '/api/admin/users/') === 0 && $method === 'DELETE') {
+    $resourceId = (int)basename($uri);
+    $auth = $jwtMiddleware->requireAuth();
+    
+    $controller = new AdminController($request, $buildRepository, $userRepository, $auth);
+    $controller->deleteUser($resourceId);
     exit;
 }
 
