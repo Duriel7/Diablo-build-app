@@ -1,7 +1,11 @@
 <?php
+
 namespace Diablo\Controller\Web;
 
-use Diablo\Controller\AbstractController;
-abstract class HomeController extends AbstractController {
-    
+class HomeController extends AbstractWebController
+{
+    public function index(): void
+    {
+        $this->render('home/index.html.twig');
+    }
 }
