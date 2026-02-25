@@ -46,6 +46,10 @@ class UserController extends AbstractApiController
 
         $id = $this->userRepository->SqlCreateUser($user);
 
+        if (!$id) {
+            $this->error('Failed to create account', 500);
+        }
+
         $this->success(['id' => $id, 'message' => 'User registered successfully'], 201);
     }
 
