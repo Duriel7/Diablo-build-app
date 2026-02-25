@@ -35,4 +35,18 @@ class AuthService
             'role' => $user->getRole()
         ]);
     }
+
+    public function verifyCredentials(string $email, string $password): ?User {
+        $user = $this->userRepository->SqlGetUserByEmail($email);
+
+        if (!$user) {
+            return null;
+        }
+
+        if (!password_verify($password, $user->getPasswordHashed())) {
+            return null;
+        }
+
+        return $user;
+    }
 }
