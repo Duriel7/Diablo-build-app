@@ -1,0 +1,23 @@
+{# Extension d'un layout de base si tu en as un #}
+{#% extends "base.html.twig" %#}
+
+{% block content %}
+<h1>Répertoire des Builds Diablo</h1>
+
+<form method="GET" action="/builds">
+    <input type="text" name="search" value="{{ searchTerm }}" placeholder="Rechercher un build ou une classe...">
+    <button type="submit">Rechercher</button>
+</form>
+
+<div class="build-list">
+    {% for build in builds %}
+        <div class="build-card">
+            <h3>{{ build.name }}</h3>
+            <p>Classe : {{ build.characterClass }}</p>
+            <a href="/builds/{{ build.id }}">Voir le build</a>
+        </div>
+    {% else %}
+        <p>Aucun build trouvé.</p>
+    {% endfor %}
+</div>
+{% endblock %}

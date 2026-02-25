@@ -60,7 +60,7 @@ if ($uri === '' && $method === 'GET') {
     echo json_encode(['success' => true, 'message' => 'API OK']);
     exit;
 }
-
+//--- API ROUTES ---
 //Register route
 if ($uri === '/api/register' && $method === 'POST') {
     $controller = new UserController($request, $userRepository);
@@ -153,6 +153,21 @@ if (strpos($uri, '/api/admin/users/') === 0 && $method === 'DELETE') {
     
     $controller = new AdminController($request, $buildRepository, $userRepository, $auth);
     $controller->deleteUser($resourceId);
+    exit;
+}
+
+//--- PUBLIC ROUTES ---
+//GetAll builds
+if ($uri === '/builds' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->index();
+    exit;
+}
+
+//Route for build details page
+if (preg_match('#^/builds/(\d+)$#', $uri, $matches) && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->show((int)$matches[1]);
     exit;
 }
 
