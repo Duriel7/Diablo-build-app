@@ -8,8 +8,12 @@ use Diablo\Data\DataBaseConnection;
 use Diablo\Repository\BuildRepository;
 use Diablo\Repository\UserRepository;
 use Diablo\Service\JwtService;
+use Diablo\Security\JwtMiddleware;
 use Diablo\Service\AuthService;
 use Diablo\Controller\Api\AuthController;
+use Diablo\Controller\Api\BuildController;
+use Diablo\Controller\Api\UserController;
+
 header('Content-Type: application/json; charset=utf-8');
 
 //Load dotenv file
@@ -35,32 +39,61 @@ $buildRepository = new BuildRepository($pdo);
 $userRepository = new UserRepository($pdo);
 
 //Initialize services
+//JWT service
 $jwtService = new JwtService(
     $_ENV['JWT_SECRET'] ?? 'dev_secret',
     'diablo.local',
     3600
 );
-
-$authService = new AuthService(
-    $userRepository,
-    $jwtService
-);
+//Authentication service and middleware
+$authService = new AuthService($userRepository,$jwtService);
+$jwtMiddleware = new JwtMiddleware($jwtService);
 
 //Minimal routing
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = preg_replace('#^/api/public/index\.php#', '', $uri);
 $uri = rtrim($uri, '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
-var_dump($uri);
-exit;
+//Health check
+if ($uri === '' && $method === 'GET') {
+    echo json_encode(['success' => true, 'message' => 'API OK']);
+    exit;
+}
 
-//Example route: login
+
+//Login route
 if ($uri === '/api/login' && $method === 'POST') {
 
     $controller = new AuthController($request, $authService);
     $controller->login();
 
+    exit;
+}
+
+//Create build protected route
+if ($uri === '/api/builds' && $method === 'POST') {
+    $auth = $jwtMiddleware->requireAuth();
+
+    $controller = new BuildController(
+        $request,
+        $buildRepository,
+        $auth
+    );
+
+    $controller->create();
+    exit;
+}
+
+//List all builds
+if ($uri === '/api/builds' && $method === 'GET') {
+
+    $controller = new BuildController(
+        $request,
+        $buildRepository,
+        []
+    );
+
+    $controller->index();
     exit;
 }
 

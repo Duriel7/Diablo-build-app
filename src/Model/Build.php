@@ -9,7 +9,7 @@ class Build implements JsonSerializable {
     private string $name;
     private string $characterClass;
     private ?string $description; //abstract about the build, can be empty
-    private string $author;
+    private int $authorId;
     private string $game;
     private bool $isDraft; //if drafted, it will be visible only to the author and admins + it won't increment version when updated
     private int $version; //auto increment in database with each update
@@ -63,14 +63,14 @@ class Build implements JsonSerializable {
         return $this;
     }
 
-    public function getAuthor(): string
+    public function getAuthorId(): int
     {
-        return $this->author;
+        return $this->authorId;
     }
 
-    public function setAuthor(string $author): Build
+    public function setAuthorId(int $authorId): Build
     {
-        $this->author = $author;
+        $this->authorId = $authorId;
         return $this;
     }
 
@@ -158,7 +158,7 @@ class Build implements JsonSerializable {
             'Name' => $this->name,
             'CharacterClass' => $this->characterClass,
             'Description' => $this->description,
-            'Author' => $this->author,
+            'Author' => $this->authorId,
             'Game' => $this->game,
             'IsDraft' => $this->isDraft,
             'Version' => $this->version,

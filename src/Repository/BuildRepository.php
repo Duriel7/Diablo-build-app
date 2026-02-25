@@ -28,7 +28,7 @@ class BuildRepository {
             $build->setName($result['name']);
             $build->setCharacterClass($result['characterClass']);
             $build->setDescription($result['description']);
-            $build->setAuthor($result['author']);
+            $build->setAuthorId($result['authorId']);
             $build->setGame($result['game']);
             $build->setIsDraft((bool)$result['isDraft']);
             $build->setVersion($result['version']);
@@ -39,6 +39,27 @@ class BuildRepository {
             $buildsArray[] = $build;
         }
         return $buildsArray;
+    }
+    
+    //Raw SQL method to catch all builds with author ID
+    public function SqlGetAllBuildsWithAuthor(): array {
+        $statement = $this->db->prepare("
+            SELECT 
+                b.id,
+                b.name,
+                b.characterClass,
+                b.description,
+                b.game,
+                b.createdAt,
+                u.nickname AS authorNickname
+            FROM builds b
+            JOIN users u ON u.id = b.author_id
+            ORDER BY b.createdAt DESC
+        ");
+
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function SqlGetBuildById(int $id): ?Build {
@@ -56,7 +77,7 @@ class BuildRepository {
             $build->setName($result['name']);
             $build->setCharacterClass($result['characterClass']);
             $build->setDescription($result['description']);
-            $build->setAuthor($result['author']);
+            $build->setAuthorId($result['authorId']);
             $build->setGame($result['game']);
             $build->setIsDraft((bool)$result['isDraft']);
             $build->setVersion($result['version']);
@@ -72,11 +93,11 @@ class BuildRepository {
     public function SqlCreateBuild(Build $build): ?int {
         try {
             //Preparing statement
-            $statement = $this->db->prepare("INSERT INTO builds (name, characterClass, description, author, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
+            $statement = $this->db->prepare("INSERT INTO builds (name, characterClass, description, author_id, game, isDraft, version, createdAt, updatedAt, imageRepository, imageFileName) VALUES (:name, :characterClass, :description, :author, :game, :isDraft, :version, :createdAt, :updatedAt, :imageRepository, :imageFileName)");
             $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
             $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
             $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
-            $statement->bindValue(':author', $build->getAuthor(), \PDO::PARAM_STR);
+            $statement->bindValue(':author_id', $build->getAuthorId(), \PDO::PARAM_INT);
             $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
             $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
             $statement->bindValue(':version', $build->getVersion(), \PDO::PARAM_INT);
@@ -97,12 +118,12 @@ class BuildRepository {
 
     public function SqlUpdateBuild(Build $build): ?Build {
         //Preparing statement
-        $statement = $this->db->prepare("UPDATE builds SET name = :name, characterClass = :characterClass, description = :description, author = :author, game = :game, isDraft = :isDraft, version = :version, updatedAt = :updatedAt, imageRepository = :imageRepository, imageFileName = :imageFileName WHERE id = :id");
+        $statement = $this->db->prepare("UPDATE builds SET name = :name, characterClass = :characterClass, description = :description, author_id = :author_id, game = :game, isDraft = :isDraft, version = :version, updatedAt = :updatedAt, imageRepository = :imageRepository, imageFileName = :imageFileName WHERE id = :id");
         $statement->bindValue(':id', $build->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':name', $build->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':characterClass', $build->getCharacterClass(), \PDO::PARAM_STR);
         $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
-        $statement->bindValue(':author', $build->getAuthor(), \PDO::PARAM_STR);
+        $statement->bindValue(':author_id', $build->getAuthorId(), \PDO::PARAM_INT);
         $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
         $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
         $statement->bindValue(':version', $build->getVersion(), \PDO::PARAM_INT);
@@ -125,7 +146,14 @@ class BuildRepository {
 
     public function SqlSearchBuilds(string $searchTerm): array {
         //Preparing statement
-        $statement = $this->db->prepare("SELECT * FROM builds WHERE name LIKE :searchTerm OR author LIKE :searchTerm OR characterClass LIKE :searchTerm OR description LIKE :searchTerm");
+        $statement = $this->db->prepare("SELECT b.*, u.nickname
+            FROM builds b
+            JOIN users u ON u.id = b.author_id
+            WHERE 
+                b.name LIKE :searchTerm
+                OR u.nickname LIKE :searchTerm
+                OR b.characterClass LIKE :searchTerm
+                OR b.description LIKE :searchTerm");
         $statement->bindValue(':searchTerm', '%' . $searchTerm . '%', \PDO::PARAM_STR);
         //Execute statement
         $statement->execute();
@@ -140,7 +168,7 @@ class BuildRepository {
             $build->setName($result['name']);
             $build->setCharacterClass($result['characterClass']);
             $build->setDescription($result['description']);
-            $build->setAuthor($result['author']);
+            $build->setAuthorId($result['author_id']);
             $build->setGame($result['game']);
             $build->setIsDraft((bool)$result['isDraft']);
             $build->setVersion($result['version']);
