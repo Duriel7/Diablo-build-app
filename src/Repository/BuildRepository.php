@@ -41,8 +41,8 @@ class BuildRepository {
         return $buildsArray;
     }
     
-    //Raw SQL method to catch all builds with author ID
-    public function SqlGetAllBuildsWithAuthor(): array {
+    //Raw SQL method to catch all builds with author ID and paginated
+    public function SqlGetAllBuildsPaginated(int $limit, int $offset): array {
         $statement = $this->db->prepare("
             SELECT 
                 b.id,
@@ -55,11 +55,21 @@ class BuildRepository {
             FROM builds b
             JOIN users u ON u.id = b.author_id
             ORDER BY b.createdAt DESC
+            LIMIT :limit OFFSET :offset
         ");
+
+        $statement->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $statement->bindValue(':offset', $offset, \PDO::PARAM_INT);
 
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+    //Counter function
+    public function SqlCountBuilds(): int
+    {
+        $statement = $this->db->query("SELECT COUNT(*) FROM builds");
+        return (int) $statement->fetchColumn();
     }
 
     public function SqlGetBuildById(int $id): ?Build {

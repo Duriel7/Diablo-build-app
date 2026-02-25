@@ -62,11 +62,26 @@ class BuildController
     }
 
     public function index(): void {
-        $builds = $this->buildRepository->SqlGetAllBuildsWithAuthor();
+        $page = (int) ($_GET['page'] ?? 1);
+        $limit = (int) ($_GET['limit'] ?? 10);
+
+        if ($page < 1) $page = 1;
+        if ($limit < 1 || $limit > 100) $limit = 10;
+
+        $offset = ($page - 1) * $limit;
+        
+        $total = $this->buildRepository->SqlCountBuilds();
+        $totalPages = (int) ceil($total / $limit);
+
+        $builds = $this->buildRepository->SqlGetAllBuildsPaginated($limit, $offset);
 
         $this->json([
             'success' => true,
-            'data' => $builds
+            'page' => $page,
+            'limit' => $limit,
+            'data' => $builds,
+            'total' => $total,
+            'totalPages' => $totalPages,
         ]);
     }
 
