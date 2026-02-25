@@ -60,6 +60,12 @@ if ($uri === '' && $method === 'GET') {
     exit;
 }
 
+//Register route
+if ($uri === '/api/register' && $method === 'POST') {
+    $controller = new UserController($request, $userRepository);
+    $controller->register();
+    exit;
+}
 
 //Login route
 if ($uri === '/api/login' && $method === 'POST') {
@@ -67,6 +73,14 @@ if ($uri === '/api/login' && $method === 'POST') {
     $controller = new AuthController($request, $authService);
     $controller->login();
 
+    exit;
+}
+
+//Profile of connected user - the "me" route
+if ($uri === '/api/me' && $method === 'GET') {
+    $auth = $jwtMiddleware->requireAuth(); // Vérifie le token
+    $controller = new UserController($request, $userRepository);
+    $controller->profile($auth);
     exit;
 }
 
