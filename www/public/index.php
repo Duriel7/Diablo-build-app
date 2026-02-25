@@ -84,6 +84,26 @@ if ($uri === '/api/me' && $method === 'GET') {
     exit;
 }
 
+//Dynamic routes - ID extraction
+$parts = explode('/', $uri);
+$resourceId = isset($parts[3]) && is_numeric($parts[3]) ? (int)$parts[3] : null;
+
+//Route - DELETE : /api/builds/{id}
+if (strpos($uri, '/api/builds/') === 0 && $method === 'DELETE' && $resourceId) {
+    $auth = $jwtMiddleware->requireAuth();
+    $controller = new BuildController($request, $buildRepository, $auth);
+    $controller->delete($resourceId);
+    exit;
+}
+
+//Route - UPDATE : /api/builds/{id}
+if (strpos($uri, '/api/builds/') === 0 && ($method === 'PUT' || $method === 'PATCH') && $resourceId) {
+    $auth = $jwtMiddleware->requireAuth();
+    $controller = new BuildController($request, $buildRepository, $auth);
+    $controller->update($resourceId);
+    exit;
+}
+
 //Create build protected route
 if ($uri === '/api/builds' && $method === 'POST') {
     $auth = $jwtMiddleware->requireAuth();
