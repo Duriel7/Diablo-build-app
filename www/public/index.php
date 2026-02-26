@@ -132,7 +132,7 @@ if ($uri === '/api/builds' && $method === 'GET') {
     exit;
 }
 
-//--- ADMIN ROUTES ---
+//--- ADMIN API ROUTES ---
 
 //Delete build (Admin)
 //Route: DELETE /api/admin/builds/{id}
@@ -153,6 +153,21 @@ if (strpos($uri, '/api/admin/users/') === 0 && $method === 'DELETE') {
     
     $controller = new AdminController($request, $buildRepository, $userRepository, $auth);
     $controller->deleteUser($resourceId);
+    exit;
+}
+
+//--- ADMIN ROUTES ---
+//Admin dashboard
+if ($uri === '/admin/dashboard' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Admin\DashboardController($request, $buildRepository, $userRepository);
+    $controller->index();
+    exit;
+}
+
+//Admin user management
+if ($uri === '/admin/users' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Admin\UserController($request, $userRepository);
+    $controller->index();
     exit;
 }
 

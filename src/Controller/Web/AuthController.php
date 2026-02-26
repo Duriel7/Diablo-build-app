@@ -36,7 +36,11 @@ class AuthController extends AbstractWebController
                 'nickname' => $user->getNickname(),
                 'role' => $user->getRole()
             ];
-            $this->redirect('/');
+            if (strtolower($user->getRole()) === 'admin') {
+                $this->redirect('/admin/dashboard');
+            } else {
+                $this->redirect('/profile');
+            }
         } else {
             $this->render('auth/login.html.twig', [
                 'error' => 'Identifiants invalides.'

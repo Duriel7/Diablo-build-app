@@ -40,7 +40,7 @@ class UserController extends AbstractApiController
         $user->setLongitude($data['longitude'] ?? 0.0);
         $user->setEmail($data['email']);
         $user->setPasswordHashed(password_hash($data['password'], PASSWORD_BCRYPT));
-        $user->setRole('user');
+        $user->setRole(strtolower('user'));
         $user->setAvatarRepository($data['avatarRepository'] ?? 'default');
         $user->setAvatarFileName($data['avatarFileName'] ?? 'user.png');
 
