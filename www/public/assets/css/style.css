@@ -1,0 +1,74 @@
+:root {
+    --diablo-red: #8b0000;
+    --dark-stone: #1a1a1a;
+    --light-gray: #d1d1d1;
+    --gold-accent: #c5a059;
+}
+
+body {
+    background-color: var(--dark-stone);
+    color: var(--light-gray);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+    background-color: #000 !important;
+    border-bottom: 2px solid var(--diablo-red);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--gold-accent) !important;
+}
+
+.btn-primary {
+    background-color: var(--diablo-red);
+    border-color: var(--gold-accent);
+}
+
+.btn-primary:hover {
+    background-color: #660000;
+    border-color: #fff;
+}
+
+.card, .form-control {
+    background-color: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+}
+
+.form-control:focus {
+    background-color: #333;
+    color: #fff;
+    border-color: var(--diablo-red);
+    box-shadow: 0 0 5px var(--diablo-red);
+}
+
+h1, h2, h3 {
+    color: var(--gold-accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.display-5 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.bg-light {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444;
+}
+
+.bg-light h2, .bg-light p {
+    color: var(--light-gray) !important;
+}
+
+.btn-outline-secondary, .btn-outline-light {
+    color: var(--gold-accent) !important;
+    border-color: var(--gold-accent) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--gold-accent) !important;
+    color: #000 !important;
+}
