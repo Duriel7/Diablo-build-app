@@ -14,7 +14,7 @@ abstract class AbstractWebController extends AbstractController
         parent::__construct($request);
 
         $loader = new \Twig\Loader\FilesystemLoader(
-            $_SERVER['DOCUMENT_ROOT'] . '/../src/View'
+            __DIR__ . '/../../View'
         );
 
         $this->twig = new \Twig\Environment($loader, [
