@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sanctuaire - Répertoire de Builds{% endblock %}</title>
+    <link rel="stylesheet" href="/css/style.css">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <header role="banner">
+        <nav role="navigation" aria-label="Menu principal">
+            <ul class="nav-list">
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/builds">Explorer les Builds</a></li>
+                
+                {% if session.user %}
+                    <li><a href="/builds/create">Créer un Build</a></li>
+                    <li><a href="/profile">Mon Profil ({{ session.user.nickname }})</a></li>
+                    
+                    {% if session.user.role == 'admin' %}
+                        <li class="admin-link"><a href="/admin/dashboard">🛡️ Administration</a></li>
+                    {% endif %}
+                    
+                    <li><a href="/logout">Déconnexion</a></li>
+                {% else %}
+                    <li><a href="/login">Connexion</a></li>
+                    <li><a href="/register">Rejoindre les Nephalems</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+        {% block body %}{% endblock %}
+    </main>
+
+    <footer role="contentinfo">
+        <p>&copy; 2026 Diablo Build Project - Validation Bloc 3</p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>
