@@ -4,12 +4,15 @@ namespace Diablo\Controller\Web;
 
 use Diablo\Core\Request;
 use Diablo\Service\AuthService;
+use Diablo\Repository\UserRepository;
+use Diablo\Model\User;
 
 class AuthController extends AbstractWebController
 {
     public function __construct(
         Request $request,
-        private AuthService $authService
+        private AuthService $authService,
+        private UserRepository $userRepository
     ) {
         parent::__construct($request);
     }
@@ -51,9 +54,27 @@ class AuthController extends AbstractWebController
     public function register(): void {
         if ($this->request->getMethod() === 'POST') {
             $data = $this->request->getPost();
-            $this->redirect('/login');
+
+            // 1. On crée l'entité User (comme tu l'as fait pour l'API)
+            $user = new User();
+            $user->setNickname($data['nickname']);
+            $user->setEmail($data['email']);
+            $user->setCity($data['city']);
+            $user->setPasswordHashed(password_hash($data['password'], PASSWORD_BCRYPT));
+            $user->setRole('user'); // Sécurité forcée !
+
+            // 2. Appel au Repository
+            $id = $this->userRepository->SqlCreateUser($user);
+
+            if ($id) {
+                $this->redirect('/login'); // Succès : direction la connexion
+            } else {
+                $this->render('auth/register.html.twig', ['error' => 'Erreur lors de la création du compte']);
+            }
+            return;
         }
 
+        // Par défaut (GET), on affiche le formulaire
         $this->render('auth/register.html.twig');
     }
 

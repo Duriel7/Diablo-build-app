@@ -78,22 +78,22 @@ if ($uri === '/admin/users' && $method === 'GET') {
 //--- PUBLIC ROUTES ---
 //Register page
 if ($uri === '/register' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\AuthController($request, $authService);
-    $controller->register(); // Méthode qui fera le $this->render('auth/register.html.twig')
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->register();
     exit;
 }
 
 //Login page
 if ($uri === '/login' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\AuthController($request, $authService);
-    $controller->login(); // Méthode qui fera le $this->render('auth/login.html.twig')
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->login();
     exit;
 }
 
 //Login form treatment
 if ($uri === '/login' && $method === 'POST') {
-    $controller = new \Diablo\Controller\Web\AuthController($request, $authService);
-    $controller->login(); // La même méthode gérera le POST (vérification credentials)
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->login();
     exit;
 }
 //GetAll builds
