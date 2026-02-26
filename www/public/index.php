@@ -76,6 +76,26 @@ if ($uri === '/admin/users' && $method === 'GET') {
 }
 
 //--- PUBLIC ROUTES ---
+//Register page
+if ($uri === '/register' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService);
+    $controller->register(); // Méthode qui fera le $this->render('auth/register.html.twig')
+    exit;
+}
+
+//Login page
+if ($uri === '/login' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService);
+    $controller->login(); // Méthode qui fera le $this->render('auth/login.html.twig')
+    exit;
+}
+
+//Login form treatment
+if ($uri === '/login' && $method === 'POST') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService);
+    $controller->login(); // La même méthode gérera le POST (vérification credentials)
+    exit;
+}
 //GetAll builds
 if ($uri === '/builds' && $method === 'GET') {
     $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);

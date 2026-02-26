@@ -47,6 +47,15 @@ class AuthController extends AbstractWebController
             ]);
         }
     }
+    
+    public function register(): void {
+        if ($this->request->getMethod() === 'POST') {
+            $data = $this->request->getPost();
+            $this->redirect('/login');
+        }
+
+        $this->render('auth/register.html.twig');
+    }
 
     //Logout
     public function logout(): void {
