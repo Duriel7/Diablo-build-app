@@ -28,54 +28,58 @@ class AuthController extends AbstractWebController
 
     //Form treatment for login
     public function login(): void {
-        $email = $this->request->post('email');
-        $password = $this->request->post('password');
+        if ($this->request->getMethod() === 'POST') {
+            $email = $this->request->post('email');
+            $password = $this->request->post('password');
 
-        $user = $this->authService->verifyCredentials($email, $password);
+            if ($email && $password) {
+                $user = $this->authService->verifyCredentials($email, $password);
 
-        if ($user) {
-            $_SESSION['user'] = [
-                'id' => $user->getId(),
-                'nickname' => $user->getNickname(),
-                'role' => $user->getRole()
-            ];
-            if (strtolower($user->getRole()) === 'admin') {
-                $this->redirect('/admin/dashboard');
-            } else {
-                $this->redirect('/profile');
+                if ($user) {
+                    $_SESSION['user'] = [
+                        'id' => $user->getId(),
+                        'nickname' => $user->getNickname(),
+                        'role' => $user->getRole()
+                    ];
+                    
+                    if (strtolower($user->getRole()) === 'admin') {
+                        $this->redirect('/admin/dashboard');
+                    } else {
+                        $this->redirect('/');
+                    }
+                    return;
+                }
             }
-        } else {
-            $this->render('auth/login.html.twig', [
-                'error' => 'Identifiants invalides.'
-            ]);
+            
+            $this->render('users/login.html.twig', ['error' => 'Identifiants invalides.']);
+            return;
         }
+
+        $this->render('users/login.html.twig');
     }
     
     public function register(): void {
         if ($this->request->getMethod() === 'POST') {
             $data = $this->request->getPost();
 
-            // 1. On crée l'entité User (comme tu l'as fait pour l'API)
             $user = new User();
             $user->setNickname($data['nickname']);
             $user->setEmail($data['email']);
             $user->setCity($data['city']);
             $user->setPasswordHashed(password_hash($data['password'], PASSWORD_BCRYPT));
-            $user->setRole('user'); // Sécurité forcée !
+            $user->setRole('user');
 
-            // 2. Appel au Repository
             $id = $this->userRepository->SqlCreateUser($user);
 
             if ($id) {
-                $this->redirect('/login'); // Succès : direction la connexion
+                $this->redirect('/login');
             } else {
-                $this->render('auth/register.html.twig', ['error' => 'Erreur lors de la création du compte']);
+                $this->render('users/register.html.twig', ['error' => 'Erreur lors de la création du compte']);
             }
             return;
         }
 
-        // Par défaut (GET), on affiche le formulaire
-        $this->render('auth/register.html.twig');
+        $this->render('users/register.html.twig');
     }
 
     //Logout
