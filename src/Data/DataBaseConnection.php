@@ -3,7 +3,8 @@ namespace Diablo\Data;
 use PDO;
 use PDOException;
 
-class DataBaseConnection{
+class DataBaseConnection
+{
     private static ?PDO $instance = null;
     public static function getInstance(): PDO {
         if (self::$instance === null) {

@@ -16,7 +16,6 @@ class AuthController extends AbstractWebController
 
     //Displays login form
     public function loginForm(): void {
-        // Si déjà connecté, on redirige vers l'accueil
         if (isset($_SESSION['user'])) {
             $this->redirect('/');
         }

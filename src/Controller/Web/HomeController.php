@@ -14,7 +14,7 @@ class HomeController extends AbstractWebController
         parent::__construct($request);
     }
 
-    public function index(): void{
+    public function index(): void {
         //Limit = 3, Offset = 0
         $latestBuilds = $this->buildRepository->SqlGetAllBuildsPaginated(3, 0);
 
