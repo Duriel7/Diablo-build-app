@@ -172,6 +172,13 @@ if ($uri === '/admin/users' && $method === 'GET') {
 }
 
 //--- PUBLIC ROUTES ---
+// Route for home page
+if (($uri === '/' || $uri === '') && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\HomeController($request, $buildRepository);
+    $controller->index();
+    exit;
+}
+
 //GetAll builds
 if ($uri === '/builds' && $method === 'GET') {
     $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
