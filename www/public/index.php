@@ -15,8 +15,6 @@ use Diablo\Controller\Api\BuildController;
 use Diablo\Controller\Api\UserController;
 use Diablo\Controller\Api\AdminController;
 
-header('Content-Type: application/json; charset=utf-8');
-
 //Load dotenv file
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
 $dotenv->load();
@@ -55,12 +53,45 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = rtrim($uri, '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
-//Health check
-if ($uri === '' && $method === 'GET') {
-    echo json_encode(['success' => true, 'message' => 'API OK']);
+// Route for home page
+if (($uri === '/' || $uri === '') && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\HomeController($request, $buildRepository);
+    $controller->index();
     exit;
 }
+
+//--- ADMIN ROUTES ---
+//Admin dashboard
+if ($uri === '/admin/dashboard' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Admin\DashboardController($request, $buildRepository, $userRepository);
+    $controller->index();
+    exit;
+}
+
+//Admin user management
+if ($uri === '/admin/users' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Admin\UserController($request, $userRepository);
+    $controller->index();
+    exit;
+}
+
+//--- PUBLIC ROUTES ---
+//GetAll builds
+if ($uri === '/builds' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->index();
+    exit;
+}
+
+//Route for build details page
+if (preg_match('#^/builds/(\d+)$#', $uri, $matches) && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->show((int)$matches[1]);
+    exit;
+}
+
 //--- API ROUTES ---
+header('Content-Type: application/json; charset=utf-8');
 //Register route
 if ($uri === '/api/register' && $method === 'POST') {
     $controller = new UserController($request, $userRepository);
@@ -133,7 +164,6 @@ if ($uri === '/api/builds' && $method === 'GET') {
 }
 
 //--- ADMIN API ROUTES ---
-
 //Delete build (Admin)
 //Route: DELETE /api/admin/builds/{id}
 if (strpos($uri, '/api/admin/builds/') === 0 && $method === 'DELETE') {
@@ -153,43 +183,6 @@ if (strpos($uri, '/api/admin/users/') === 0 && $method === 'DELETE') {
     
     $controller = new AdminController($request, $buildRepository, $userRepository, $auth);
     $controller->deleteUser($resourceId);
-    exit;
-}
-
-//--- ADMIN ROUTES ---
-//Admin dashboard
-if ($uri === '/admin/dashboard' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Admin\DashboardController($request, $buildRepository, $userRepository);
-    $controller->index();
-    exit;
-}
-
-//Admin user management
-if ($uri === '/admin/users' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Admin\UserController($request, $userRepository);
-    $controller->index();
-    exit;
-}
-
-//--- PUBLIC ROUTES ---
-// Route for home page
-if (($uri === '/' || $uri === '') && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\HomeController($request, $buildRepository);
-    $controller->index();
-    exit;
-}
-
-//GetAll builds
-if ($uri === '/builds' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
-    $controller->index();
-    exit;
-}
-
-//Route for build details page
-if (preg_match('#^/builds/(\d+)$#', $uri, $matches) && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
-    $controller->show((int)$matches[1]);
     exit;
 }
 
