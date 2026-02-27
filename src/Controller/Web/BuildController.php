@@ -5,6 +5,8 @@ namespace Diablo\Controller\Web;
 use Diablo\Core\Request;
 use Diablo\Repository\BuildRepository;
 use Diablo\Model\Build;
+use Diablo\Service\MailerService;
+use Diablo\Service\PdfService;
 
 class BuildController extends AbstractWebController
 {
@@ -96,13 +98,41 @@ class BuildController extends AbstractWebController
             'build' => $build
         ]);
 
-        $pdfService = new \Diablo\Service\PdfService();
+        $pdfService = new PdfService();
         $binaryPdf = $pdfService->generateBinaryPdf($html);
 
+        //Naming the file with build name and date
+        $safeName = str_replace([' ', "'", '"'], '-', $build->getName());
+        $fileName = "Build_" . $safeName . "_" . date('Y-m-d') . ".pdf";
+
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="build-' . $id . '.pdf"');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
         
         echo $binaryPdf;
         exit;
+    }
+
+    //Report a build (send email with PDF)
+    public function report(int $id): void {
+        $build = $this->buildRepository->SqlGetBuildById($id);
+        if (!$build) {
+            $this->redirect('/builds');
+            return;
+        }
+
+        $adminEmail = $_ENV['ADMIN_MAIL'] ?? 'default-admin@test.fr';
+
+        $pdfService = new PdfService();
+        $html = $this->twig->render('pdf/build_sheet.html.twig', ['build' => $build]);
+        $pdfContent = $pdfService->generateBinaryPdf($html);
+
+        try {
+            $mailer = new MailerService();
+            $mailer->sendReportWithPdf($adminEmail, $build->getName(), $pdfContent);
+            
+            $this->redirect('/builds/' . $id . '?success=reported');
+        } catch (\Exception $e) {
+            die("Erreur d'envoi mail : " . $e->getMessage());
+        }
     }
 }
