@@ -45,8 +45,35 @@
 
 <div class="mt-5">
     <h2 class="h4 text-gold mb-3">Dernières activités</h2>
-    <div class="table-responsive bg-dark p-3 rounded shadow">
-        <p class="text-muted small italic">Ici, tu pourras boucler sur les derniers builds ou inscriptions...</p>
+    <div class="table-responsive bg-dark p-3 rounded shadow border border-secondary">
+        <table class="table table-dark table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Nom du Build</th>
+                    <th>Classe</th>
+                    <th>Jeu</th>
+                    <th>Date</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for build in lastBuilds %}
+                    <tr>
+                        <td>{{ build.name }}</td>
+                        <td><span class="badge bg-danger">{{ build.characterClass }}</span></td>
+                        <td>{{ build.game }}</td>
+                        <td>{{ build.createdAt|date('d/m/Y H:i') }}</td>
+                        <td class="text-end">
+                            <a href="/builds/{{ build.id }}" class="btn btn-sm btn-outline-warning">Voir</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Aucune activité récente.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
