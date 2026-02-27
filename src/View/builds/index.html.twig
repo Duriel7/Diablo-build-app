@@ -1,22 +1,50 @@
 {% extends "base.html.twig" %}
 
-{% block content %}
-<h1>Répertoire des Builds Diablo</h1>
+{% block title %}Répertoire des Builds - {{ parent() }}{% endblock %}
 
-<form method="GET" action="/builds">
-    <input type="text" name="search" value="{{ searchTerm }}" placeholder="Rechercher un build ou une classe...">
-    <button type="submit">Rechercher</button>
-</form>
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-gold">Répertoire des Builds</h1>
+    {% if session.user is defined %}
+        <a href="/builds/create" class="btn btn-primary">Forger un Build</a>
+    {% endif %}
+</div>
 
-<div class="build-list">
+<div class="card bg-dark border-secondary mb-4">
+    <div class="card-body">
+        <form method="GET" action="/builds" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" class="form-control" name="search" value="{{ searchTerm|default('') }}" placeholder="Rechercher un build, une classe (Barbare, Sorcier...)...">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-outline-warning">Rechercher</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
     {% for build in builds %}
-        <div class="build-card">
-            <h3>{{ build.name }}</h3>
-            <p>Classe : {{ build.characterClass }}</p>
-            <a href="/builds/{{ build.id }}">Voir le build</a>
+        <div class="col">
+            <div class="card h-100 bg-dark text-white border-secondary shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-gold">{{ build.name }}</h3>
+                    <p class="card-text">
+                        <span class="badge bg-danger">{{ build.characterClass }}</span>
+                        <br>
+                        <small class="text-muted">Jeu : {{ build.game }}</small>
+                    </p>
+                    <p class="card-text text-truncate">{{ build.description|striptags }}</p>
+                </div>
+                <div class="card-footer border-secondary bg-transparent">
+                    <a href="/builds/{{ build.id }}" class="btn btn-sm btn-outline-light w-100">Voir les détails</a>
+                </div>
+            </div>
         </div>
     {% else %}
-        <p>Aucun build trouvé.</p>
+        <div class="col-12 text-center py-5">
+            <p class="fs-4 text-muted">Aucun build n'a encore été forgé dans le Sanctuaire.</p>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}
