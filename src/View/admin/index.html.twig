@@ -1,0 +1,52 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Panel d'Administration - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="border-bottom border-danger pb-2">🛡️ Dashboard Administrateur</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card bg-dark text-white h-100 border-secondary">
+            <div class="card-body text-center">
+                <h3 class="card-title h5 text-gold">Membres</h3>
+                <p class="display-6">{{ usersCount|default('0') }}</p>
+                <a href="/admin/users" class="btn btn-outline-warning btn-sm">Gérer les Nephalems</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-dark text-white h-100 border-secondary">
+            <div class="card-body text-center">
+                <h3 class="card-title h5 text-gold">Builds Forgés</h3>
+                <p class="display-6">{{ buildsCount|default('0') }}</p>
+                <a href="/admin/builds" class="btn btn-outline-warning btn-sm">Modérer les Builds</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-dark text-white h-100 border-secondary">
+            <div class="card-body">
+                <h3 class="card-title h5 text-gold text-center">Actions Rapides</h3>
+                <div class="d-grid gap-2">
+                    <a href="/admin/reports" class="btn btn-danger btn-sm">Builds Signalés</a>
+                    <a href="/admin/logs" class="btn btn-secondary btn-sm">Journaux système</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h2 class="h4 text-gold mb-3">Dernières activités</h2>
+    <div class="table-responsive bg-dark p-3 rounded shadow">
+        <p class="text-muted small italic">Ici, tu pourras boucler sur les derniers builds ou inscriptions...</p>
+    </div>
+</div>
+{% endblock %}
