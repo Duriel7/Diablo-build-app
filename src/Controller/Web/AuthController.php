@@ -43,7 +43,7 @@ class AuthController extends AbstractWebController
                     ];
                     
                     if (strtolower($user->getRole()) === 'admin') {
-                        $this->redirect('/admin/dashboard');
+                        $this->redirect('/');
                     } else {
                         $this->redirect('/');
                     }

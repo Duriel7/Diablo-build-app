@@ -15,11 +15,13 @@ class DashboardController extends AbstractAdminController
         parent::__construct($request);
     }
 
-    public function index(): void
-    {
-        $this->render('admin/dashboard.html.twig', [
-            'totalBuilds' => $this->buildRepository->SqlCountBuilds(),
-            'totalUsers' => count($this->userRepository->SqlGetAllUsers(1000)),
+    public function index(): void {
+        $usersCount = count($this->userRepository->SqlGetAllUsers(100));
+        $buildsCount = count($this->buildRepository->SqlGetAllBuilds(100));
+
+        $this->render('admin/index.html.twig', [
+            'usersCount' => $usersCount,
+            'buildsCount' => $buildsCount,
             'lastBuilds' => $this->buildRepository->SqlGetAllBuildsPaginated(5, 0)
         ]);
     }
