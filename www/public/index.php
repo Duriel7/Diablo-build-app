@@ -142,6 +142,14 @@ if (preg_match('#^/builds/download/(\d+)$#', $uri, $matches)) {
     exit;
 }
 
+//Report a build
+if (preg_match('#^/builds/report/(\d+)$#', $uri, $matches) && $method === 'POST') {
+    $id = (int)$matches[1];
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->report($id);
+    exit;
+}
+
 //--- API ROUTES ---
 header('Content-Type: application/json; charset=utf-8');
 //Register route

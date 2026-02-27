@@ -10,22 +10,18 @@ class MailerService
 {
     private Mailer $mailer;
 
-    public function __construct()
-    {
-        // Remplace par ton DSN MailTrap ou SMTP perso
-        // Format : smtp://USERNAME:PASSWORD@smtp.mailtrap.io:2525
-        $dsn = 'smtp://ton_username:ton_password@sandbox.smtp.mailtrap.io:2525';
+    public function __construct() {
+        $dsn = $_ENV['MAILER_DSN'] ?? 'smtp://localhost'; 
         $transport = Transport::fromDsn($dsn);
         $this->mailer = new Mailer($transport);
     }
 
-    public function sendReportWithPdf(string $adminEmail, string $buildName, string $pdfContent): void
-    {
+    public function sendReportWithPdf(string $adminEmail, string $buildName, string $pdfContent): void {
         $email = (new Email())
             ->from('system@diablo-builds.fr')
             ->to($adminEmail)
             ->subject('⚠️ Signalement de Build : ' . $buildName)
-            ->text('Un utilisateur a signalé le build suivant. La fiche détaillée est jointe en PDF.')
+            ->html("<p>L'administrateur a reçu un signalement pour le build : <strong>{$buildName}</strong>.</p><p>Le détail est en pièce jointe.</p>")
             ->attach($pdfContent, 'signalement-' . date('Ymd') . '.pdf', 'application/pdf');
 
         $this->mailer->send($email);
