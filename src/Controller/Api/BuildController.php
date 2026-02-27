@@ -52,9 +52,7 @@ class BuildController extends AbstractApiController
         $this->success(['id' => $id, 'message' => 'Build created'], 201);
     }
 
-    /**
-     * Mettre à jour un build (Seulement si l'utilisateur est l'auteur)
-     */
+    //Update build
     public function update(int $id): void
     {
         $data = $this->request->getJson();
@@ -85,9 +83,7 @@ class BuildController extends AbstractApiController
         $this->success(['message' => 'Build updated']);
     }
 
-    /**
-     * Supprimer un build
-     */
+    //Delete build
     public function delete(int $id): void
     {
         $build = $this->buildRepository->SqlGetBuildById($id);

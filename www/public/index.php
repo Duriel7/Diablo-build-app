@@ -118,6 +118,22 @@ if (preg_match('#^/builds/(\d+)$#', $uri, $matches) && $method === 'GET') {
     exit;
 }
 
+//--- USER ROUTES ---
+//User profile page
+
+//Create a build GET and POST routes
+if ($uri === '/builds/create' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->create(); 
+    exit;
+}
+if ($uri === '/builds/create' && $method === 'POST') {
+    $auth = $_SESSION['user'] ?? null; //take user session to associate it with the build
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->store();
+    exit;
+}
+
 //--- API ROUTES ---
 header('Content-Type: application/json; charset=utf-8');
 //Register route
