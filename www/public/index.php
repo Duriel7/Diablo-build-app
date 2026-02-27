@@ -96,6 +96,14 @@ if ($uri === '/login' && $method === 'POST') {
     $controller->login();
     exit;
 }
+
+//Logout route
+if ($uri === '/logout' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->logout();
+    exit;
+}
+
 //GetAll builds
 if ($uri === '/builds' && $method === 'GET') {
     $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
