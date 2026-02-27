@@ -1,0 +1,41 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Mon Profil - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-dark border-gold text-white mb-4">
+            <div class="card-body text-center">
+                <i class="bi bi-person-badge display-1 text-gold"></i>
+                <h2 class="mt-3">{{ session.user.nickname }}</h2>
+                <p class="badge bg-danger text-uppercase">{{ session.user.role }}</p>
+                <hr class="border-secondary">
+                <p class="text-start"><strong>Ville :</strong> {{ user.city|default('Non renseignée') }}</p>
+                <p class="text-start"><strong>Bio :</strong> {{ user.bio|default('Pas encore de biographie.') }}</p>
+                <a href="/profile/edit" class="btn btn-sm btn-outline-warning">Modifier mes infos</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <h2 class="text-gold mb-4">Mes Forges de Builds</h2>
+        <div class="list-group shadow">
+            {% for build in userBuilds %}
+                <a href="/builds/{{ build.id }}" class="list-group-item list-group-item-action bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ build.name }}</h5>
+                        <small class="text-muted">{{ build.characterClass }} - {{ build.game }}</small>
+                    </div>
+                    <span class="badge bg-primary rounded-pill">V.{{ build.version }}</span>
+                </a>
+            {% else %}
+                <div class="alert alert-secondary bg-dark text-muted border-secondary">
+                    Vous n'avez pas encore créé de builds. 
+                    <a href="/builds/create" class="text-gold">Commencer maintenant ?</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

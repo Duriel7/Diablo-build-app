@@ -10,7 +10,7 @@
         <div class="alert alert-danger" role="alert">{{ error }}</div>
     {% endif %}
 
-    <form action="/register" method="POST">
+    <form id="registerForm" action="/register" method="POST">
         <div class="form-group">
             <label for="nickname">Nom de héros (Nickname) :</label>
             <input type="text" id="nickname" name="nickname" required aria-required="true">
@@ -32,11 +32,36 @@
         </div>
 
         <div class="form-group">
+            <input type="hidden" name="latitude" id="lat">
+            <input type="hidden" name="longitude" id="lon">
+        </div>
+        
+        <div class="form-group">
             <label for="bio">Votre histoire (Bio) :</label>
             <textarea id="bio" name="bio" rows="4"></textarea>
         </div>
 
-        <button type="submit" class="btn-submit">S'inscrire</button>
+        <button type="submit" class="btn btn-primary">Rejoindre les Nephalems</button>
     </form>
+
+    {% block javascript %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('lat').value = "0.0";
+                document.getElementById('lon').value = "0.0";
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        document.getElementById('lat').value = position.coords.latitude;
+                        document.getElementById('lon').value = position.coords.longitude;
+                        console.log("Position capturée : ", position.coords.latitude, position.coords.longitude);
+                    }, function(error) {
+                        document.getElementById('lat').value = 0.0;
+                        document.getElementById('lon').value = 0.0;
+                        console.warn("L'utilisateur a refusé la géolocalisation ou une erreur est survenue : ", error.message);
+                    });
+                }
+            });
+        </script>
+    {% endblock %}
 </section>
 {% endblock %}
