@@ -134,6 +134,14 @@ if ($uri === '/builds/create' && $method === 'POST') {
     exit;
 }
 
+//Download build PDF
+if (preg_match('#^/builds/download/(\d+)$#', $uri, $matches)) {
+    $id = (int)$matches[1];
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller->downloadPdf($id);
+    exit;
+}
+
 //--- API ROUTES ---
 header('Content-Type: application/json; charset=utf-8');
 //Register route

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #8b0000; }
+        .title { color: #8b0000; font-size: 24px; }
+        .info { margin-top: 20px; }
+        .description { margin-top: 30px; border: 1px solid #ccc; padding: 10px; }
+    </ol>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">FICHE DE BUILD : {{ build.name }}</h1>
+        <p>Généré par le Sanctuaire - Diablo Build App</p>
+    </div>
+    
+    <div class="info">
+        <p><strong>Classe :</strong> {{ build.characterClass }}</p>
+        <p><strong>Jeu :</strong> {{ build.game }}</p>
+        <p><strong>Version :</strong> {{ build.version }}</p>
+    </div>
+
+    <div class="description">
+        <h3>Description des compétences</h3>
+        <p>{{ build.description|nl2br }}</p>
+    </div>
+</body>
+</html>

@@ -46,8 +46,8 @@ class BuildController extends AbstractWebController
         ]);
     }
 
+    //Show form to create a build
     public function create(): void {
-        //Show form to create a build
         $this->render('builds/create.html.twig');
     }
     
@@ -81,5 +81,28 @@ class BuildController extends AbstractWebController
                 $this->render('builds/create.html.twig', ['error' => 'Erreur de forge']);
             }
         }
+    }
+
+    //Download build as PDF
+    public function downloadPdf(int $id): void {
+        $build = $this->buildRepository->SqlGetBuildById($id);
+        
+        if (!$build) {
+            $this->redirect('/builds');
+            return;
+        }
+
+        $html = $this->twig->render('pdf/build_sheet.html.twig', [
+            'build' => $build
+        ]);
+
+        $pdfService = new \Diablo\Service\PdfService();
+        $binaryPdf = $pdfService->generateBinaryPdf($html);
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="build-' . $id . '.pdf"');
+        
+        echo $binaryPdf;
+        exit;
     }
 }
