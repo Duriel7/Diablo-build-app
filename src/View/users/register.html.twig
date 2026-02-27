@@ -55,8 +55,8 @@
                         document.getElementById('lon').value = position.coords.longitude;
                         console.log("Position capturée : ", position.coords.latitude, position.coords.longitude);
                     }, function(error) {
-                        document.getElementById('lat').value = 0.0;
-                        document.getElementById('lon').value = 0.0;
+                        document.getElementById('lat').value = "0.0";
+                        document.getElementById('lon').value = "0.0";
                         console.warn("L'utilisateur a refusé la géolocalisation ou une erreur est survenue : ", error.message);
                     });
                 }
