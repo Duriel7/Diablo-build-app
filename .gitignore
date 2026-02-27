@@ -16,6 +16,7 @@
 .swiftpm/
 migrate_working_dir/
 www/var/cache/
+www/tmp_mpdf
 
 # IntelliJ related
 *.iml
