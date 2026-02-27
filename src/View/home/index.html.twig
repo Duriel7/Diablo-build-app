@@ -24,16 +24,18 @@
     <div class="col-md-6">
         <div class="h-100 p-5 text-white bg-secondary rounded-3">
             <h2>Derniers Builds</h2>
-            <p>Consultez les dernières optimisations pour Diablo IV et Diablo II: Resurrected.</p>
+            <p>Consultez les dernières optimisations pour Diablo II, Diablo III, et Diablo IV.</p>
             <a class="btn btn-outline-light" href="/builds">Voir la liste</a>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="h-100 p-5 bg-light border rounded-3">
-            <h2>Administration</h2>
-            <p>Gérez les utilisateurs et les builds signalés par la communauté.</p>
-            <a class="btn btn-outline-secondary" href="/admin/dashboard">Accéder au Panel</a>
-        </div>
+        {% if session.user is defined and session.user.role == 'admin' %}
+            <div class="h-100 p-5 bg-light border rounded-3">
+                <h2>Administration</h2>
+                <p>Gérez les utilisateurs et les builds signalés par la communauté.</p>
+                <a class="btn btn-outline-secondary" href="/admin/dashboard">Accéder au Panel</a>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
