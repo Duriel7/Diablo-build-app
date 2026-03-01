@@ -18,6 +18,13 @@ class User implements JsonSerializable{
     private ?string $avatarRepository;
     private ?string $avatarFileName;
 
+    public function __construct() {
+        $this->registeredAt = new \DateTimeImmutable();
+        $this->bio = "";
+        $this->latitude = 0.0;
+        $this->longitude = 0.0;
+    }
+
     public function getId(): int
     {
         return $this->id;
