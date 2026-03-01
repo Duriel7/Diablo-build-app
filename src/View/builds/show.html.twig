@@ -18,6 +18,7 @@
                 <h5 class="text-gold">{{ build.characterClass }}</h5>
                 <p class="badge bg-danger">{{ build.game }}</p>
                 <p class="small text-muted">Créé le : {{ build.createdAt|date('d/m/Y') }}</p>
+                <p>Par : <a href="/user/{{ build.authorId }}" class="text-gold">{{ author.nickname }}</a></p>
                 <p class="small text-muted">Version : {{ build.version }}</p>
             </div>
         </div>
