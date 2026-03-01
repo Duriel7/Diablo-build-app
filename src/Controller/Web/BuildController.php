@@ -5,6 +5,7 @@ namespace Diablo\Controller\Web;
 use Diablo\Core\Request;
 use Diablo\Repository\BuildRepository;
 use Diablo\Model\Build;
+use Diablo\Repository\UserRepository;
 use Diablo\Service\MailerService;
 use Diablo\Service\PdfService;
 
@@ -12,39 +13,44 @@ class BuildController extends AbstractWebController
 {
     public function __construct(
         Request $request,
-        private BuildRepository $buildRepository
+        private BuildRepository $buildRepository,
+        private UserRepository $userRepository
     ) {
         parent::__construct($request);
     }
 
     //Index shows builds list with search form
     public function index(): void {
+        $searchTerm = $this->request->get('search', '');
         $page = (int)($this->request->get('page', 1));
         $limit = 10;
         $offset = ($page - 1) * $limit;
 
-        $builds = $this->buildRepository->SqlGetAllBuildsPaginated($limit, $offset);
+        $builds = $this->buildRepository->SqlGetAllBuildsPaginated($searchTerm, $limit, $offset);
         
-        $totalBuilds = $this->buildRepository->SqlCountBuilds();
+        $totalBuilds = $this->buildRepository->SqlCountBuilds($searchTerm);
         $totalPages = ceil($totalBuilds / $limit);
 
         $this->render('builds/index.html.twig', [
             'builds' => $builds,
             'currentPage' => $page,
-            'totalPages' => $totalPages
+            'totalPages' => $totalPages,
+            'searchTerm' => $searchTerm
         ]);
     }
 
     //Displays build details
     public function show(int $id): void {
         $build = $this->buildRepository->SqlGetBuildById($id);
+        $author = $this->userRepository->SqlGetUserById($build->getAuthorId());
 
         if (!$build) {
             $this->render('errors/404.html.twig', ['message' => 'Build introuvable']);
         }
 
         $this->render('builds/show.html.twig', [
-            'build' => $build
+            'build' => $build,
+            'author' => $author
         ]);
     }
 

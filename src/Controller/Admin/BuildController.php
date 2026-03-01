@@ -13,9 +13,13 @@ class BuildController extends AbstractAdminController
         parent::__construct($request);
     }
 
-    public function index(): void
-    {
+    public function index(): void {
         $builds = $this->buildRepository->SqlGetAllBuilds(50);
-        $this->render('admin/builds/index.html.twig', ['builds' => $builds]);
+        $this->render('builds/index.html.twig', ['builds' => $builds]);
+    }
+    
+    public function deleteBuild(int $id): void {
+        $this->buildRepository->SqlDeleteBuild($id);
+        $this->redirect('/admin/builds?success=deleted');
     }
 }

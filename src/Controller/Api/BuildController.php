@@ -19,7 +19,6 @@ class BuildController extends AbstractApiController
     public function create(): void {
         $data = $this->request->getJson();
 
-        // Validation minimale
         if (
             !isset($data['name']) ||
             !isset($data['characterClass']) ||
@@ -53,8 +52,7 @@ class BuildController extends AbstractApiController
     }
 
     //Update build
-    public function update(int $id): void
-    {
+    public function update(int $id): void {
         $data = $this->request->getJson();
         $build = $this->buildRepository->SqlGetBuildById($id);
 
@@ -84,8 +82,7 @@ class BuildController extends AbstractApiController
     }
 
     //Delete build
-    public function delete(int $id): void
-    {
+    public function delete(int $id): void {
         $build = $this->buildRepository->SqlGetBuildById($id);
 
         if (!$build) {
@@ -102,6 +99,7 @@ class BuildController extends AbstractApiController
     }
 
     public function index(): void {
+        $searchTerm = $this->request->get('search', '');
         $page = (int) ($_GET['page'] ?? 1);
         $limit = (int) ($_GET['limit'] ?? 10);
 
@@ -110,10 +108,10 @@ class BuildController extends AbstractApiController
 
         $offset = ($page - 1) * $limit;
 
-        $total = $this->buildRepository->SqlCountBuilds();
+        $total = $this->buildRepository->SqlCountBuilds($searchTerm);
         $totalPages = (int) ceil($total / $limit);
 
-        $builds = $this->buildRepository->SqlGetAllBuildsPaginated($limit, $offset);
+        $builds = $this->buildRepository->SqlGetAllBuildsPaginated($searchTerm, $limit, $offset);
 
         $this->json([
             'success' => true,
