@@ -1,0 +1,58 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Gestion des Membres - Sanctuaire{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-gold">Membres du Sanctuaire</h1>
+    <span class="badge bg-secondary">{{ users|length }} Nephalems inscrits</span>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-dark table-hover align-middle border-secondary">
+        <thead class="table-light text-dark">
+            <tr>
+                <th>ID</th>
+                <th>Héros (Nickname)</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Ville</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td class="fw-bold text-gold"><a href="/user/{{ user.id }}" class="author-link">{{ user.nickname }}</a></td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <span class="badge {{ user.role == 'ROLE_ADMIN' ? 'bg-danger' : 'bg-primary' }}">
+                        {{ user.role }}
+                    </span>
+                </td>
+                <td>{{ user.city }}</td>
+                <td class="text-center">
+                    <div class="btn-group btn-group-sm">
+                        <a href="/admin/users/edit/{{ user.id }}" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% if session.user.id != user.id %}
+                        <form action="/admin/users/delete/{{ user.id }}" method="POST" onsubmit="return confirm('Bannir ce héros du Sanctuaire ?');">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">Aucun héros n'a encore rejoint la lutte.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
