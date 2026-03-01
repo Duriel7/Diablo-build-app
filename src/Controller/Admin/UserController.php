@@ -16,6 +16,6 @@ class UserController extends AbstractAdminController
     public function index(): void
     {
         $users = $this->userRepository->SqlGetAllUsers(50);
-        $this->render('admin/users/index.html.twig', ['users' => $users]);
+        $this->render('users/index.html.twig', ['users' => $users]);
     }
 }
