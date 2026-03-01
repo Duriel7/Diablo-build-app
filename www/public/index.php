@@ -27,7 +27,7 @@ $request = new Request();
 //Initialize database connection
 try {
     $pdo = DataBaseConnection::getInstance();
-} catch (Throwable $error) {//FIX ME : modif with json response body
+} catch (Throwable $error) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
     exit;
@@ -75,9 +75,32 @@ if ($uri === '/admin/users' && $method === 'GET') {
     exit;
 }
 
+if ($uri === '/admin/builds' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Admin\BuildController($request, $buildRepository);
+    $controller->index();
+    exit;
+}
+
+if (preg_match('#^/admin/users/delete/(\d+)$#', $uri, $matches) && $method === 'POST') {
+    $controller = new \Diablo\Controller\Admin\UserController($request, $userRepository);
+    $controller->deleteUser((int)$matches[1]);
+    exit;
+}
+
+if (preg_match('#^/admin/builds/delete/(\d+)$#', $uri, $matches) && $method === 'POST') {
+    $controller = new \Diablo\Controller\Admin\BuildController($request, $buildRepository);
+    $controller->deleteBuild((int)$matches[1]);
+    exit;
+}
+
 //--- PUBLIC ROUTES ---
 //Register page
 if ($uri === '/register' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->register();
+    exit;
+}
+if ($uri === '/register' && $method === 'POST') {
     $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
     $controller->register();
     exit;
@@ -86,7 +109,7 @@ if ($uri === '/register' && $method === 'GET') {
 //Login page
 if ($uri === '/login' && $method === 'GET') {
     $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
-    $controller->login();
+    $controller->loginForm();
     exit;
 }
 
@@ -106,38 +129,62 @@ if ($uri === '/logout' && $method === 'GET') {
 
 //GetAll builds
 if ($uri === '/builds' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->index();
     exit;
 }
 
 //Route for build details page
 if (preg_match('#^/builds/(\d+)$#', $uri, $matches) && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->show((int)$matches[1]);
+    exit;
+}
+
+//Route for user details page
+if (preg_match('#^/user/(\d+)$#', $uri, $matches) && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->showProfile((int)$matches[1]);
     exit;
 }
 
 //--- USER ROUTES ---
 //User profile page
+if ($uri === '/profile' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->profile();
+    exit;
+}
 
 //Create a build GET and POST routes
 if ($uri === '/builds/create' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->create(); 
     exit;
 }
 if ($uri === '/builds/create' && $method === 'POST') {
     $auth = $_SESSION['user'] ?? null; //take user session to associate it with the build
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->store();
+    exit;
+}
+
+//Update profile route
+if ($uri === '/profile/edit' && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->editProfile();
+    exit;
+}
+if ($uri === '/profile/update' && $method === 'POST') {
+    $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
+    $controller->updateProfile();
     exit;
 }
 
 //Download build PDF
 if (preg_match('#^/builds/download/(\d+)$#', $uri, $matches)) {
     $id = (int)$matches[1];
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->downloadPdf($id);
     exit;
 }
@@ -145,13 +192,12 @@ if (preg_match('#^/builds/download/(\d+)$#', $uri, $matches)) {
 //Report a build
 if (preg_match('#^/builds/report/(\d+)$#', $uri, $matches) && $method === 'POST') {
     $id = (int)$matches[1];
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository);
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->report($id);
     exit;
 }
 
 //--- API ROUTES ---
-header('Content-Type: application/json; charset=utf-8');
 //Register route
 if ($uri === '/api/register' && $method === 'POST') {
     $controller = new UserController($request, $userRepository);
@@ -169,10 +215,16 @@ if ($uri === '/api/login' && $method === 'POST') {
 }
 
 //Profile of connected user - the "me" route
-if ($uri === '/api/me' && $method === 'GET') {
-    $auth = $jwtMiddleware->requireAuth(); // Vérifie le token
+if ($uri === '/api/profile' && $method === 'GET') {
+    $auth = $jwtMiddleware->requireAuth();
     $controller = new UserController($request, $userRepository);
     $controller->profile($auth);
+    exit;
+}
+if ($uri === '/api/profile' && ($method === 'PUT' || $method === 'PATCH')) {
+    $auth = $jwtMiddleware->requireAuth();
+    $controller = new UserController($request, $userRepository);
+    $controller->update($auth);
     exit;
 }
 
