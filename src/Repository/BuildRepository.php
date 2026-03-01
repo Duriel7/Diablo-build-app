@@ -42,34 +42,53 @@ class BuildRepository {
     }
     
     //Raw SQL method to catch all builds with author ID and paginated
-    public function SqlGetAllBuildsPaginated(int $limit, int $offset): array {
-        $statement = $this->db->prepare("
+    public function SqlGetAllBuildsPaginated(string $searchTerm, int $limit, int $offset): array {
+        $sql = "
             SELECT 
-                b.id,
-                b.name,
-                b.characterClass,
-                b.description,
-                b.game,
-                b.createdAt,
+                b.id, b.name, b.characterClass, b.description, b.game, b.createdAt,
                 u.nickname AS authorNickname
             FROM builds b
             JOIN users u ON u.id = b.author_id
-            ORDER BY b.createdAt DESC
-            LIMIT :limit OFFSET :offset
-        ");
+        ";
 
+        if (!empty($searchTerm)) {
+            $sql .= " WHERE (b.name LIKE :search1 OR b.characterClass LIKE :search2 OR b.game LIKE :search3) ";
+        }
+
+        $sql .= " ORDER BY b.createdAt DESC LIMIT :limit OFFSET :offset";
+
+        $statement = $this->db->prepare($sql);
+
+        if (!empty($searchTerm)) {
+            $val = '%' . $searchTerm . '%';
+            $statement->bindValue(':search1', $val, \PDO::PARAM_STR);
+            $statement->bindValue(':search2', $val, \PDO::PARAM_STR);
+            $statement->bindValue(':search3', $val, \PDO::PARAM_STR);
+        }
+        
         $statement->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $statement->bindValue(':offset', $offset, \PDO::PARAM_INT);
 
         $statement->execute();
-
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
+
     //Counter function
-    public function SqlCountBuilds(): int
-    {
-        $statement = $this->db->query("SELECT COUNT(*) FROM builds");
-        return (int) $statement->fetchColumn();
+    public function SqlCountBuilds(string $searchTerm): int {
+        $sql = "SELECT COUNT(*) FROM builds";
+        if (!empty($searchTerm)) {
+            $sql .= " WHERE name LIKE :search1 OR characterClass LIKE :search2";
+        }
+        
+        $statement = $this->db->prepare($sql);
+
+        if (!empty($searchTerm)) {
+            $val = '%' . $searchTerm . '%';
+            $statement->bindValue(':search1', $val, \PDO::PARAM_STR);
+            $statement->bindValue(':search2', $val, \PDO::PARAM_STR);
+        }
+        $statement->execute();
+        return (int)$statement->fetchColumn();
     }
 
     public function SqlGetBuildById(int $id): ?Build {
