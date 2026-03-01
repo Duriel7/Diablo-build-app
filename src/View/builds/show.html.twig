@@ -44,6 +44,14 @@
                 {{ build.description|raw }}
             </div>
         </div>
+        {% if session.user is defined and (session.user.id == build.authorId or session.user.role == 'admin') %}
+            <div class="admin-actions mt-3">
+                <a href="/builds/edit/{{ build.id }}" class="btn btn-warning">Modifier</a>
+                <form action="/builds/delete/{{ build.id }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Supprimer ?')">Supprimer</button>
+                </form>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
