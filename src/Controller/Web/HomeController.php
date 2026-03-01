@@ -16,7 +16,7 @@ class HomeController extends AbstractWebController
 
     public function index(): void {
         //Limit = 3, Offset = 0
-        $latestBuilds = $this->buildRepository->SqlGetAllBuildsPaginated(3, 0);
+        $latestBuilds = $this->buildRepository->SqlGetAllBuildsPaginated("", 3, 0);
 
         $this->render('home/index.html.twig', [
             'latestBuilds' => $latestBuilds
