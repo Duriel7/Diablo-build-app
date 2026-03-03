@@ -1,5 +1,5 @@
 name: diablo_build_app
-description: "Diablo build web application"
+description: "Diablo build web and mobile application"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.1.0
+  geolocator: ^10.1.0
+  vibration: ^1.8.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
