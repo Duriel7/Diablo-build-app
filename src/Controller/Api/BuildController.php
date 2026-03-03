@@ -10,7 +10,7 @@ use Diablo\Controller\Api\AbstractApiController;
 class BuildController extends AbstractApiController
 {
     public function __construct(
-        private Request $request,
+        protected Request $request,
         private BuildRepository $buildRepository,
         private array $auth
     ) {}
