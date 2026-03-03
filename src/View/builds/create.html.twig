@@ -7,6 +7,9 @@
     <h1 class="mb-4">Forger un nouveau Build</h1>
 
     <form method="post" action="/builds/create" class="needs-validation">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
         
         <div class="mb-3">
             <label for="name" class="form-label">Nom du Build :</label>
@@ -45,10 +48,37 @@
             <textarea class="form-control" id="description" name="description" rows="6" placeholder="Expliquez les compétences, l'équipement et la rotation de sorts..."></textarea>
         </div>
 
+        <div class="mb-3">
+            <label for="imageFile" class="form-label">Image d'illustration (Optionnel) :</label>
+            <input type="file" id="imageFile" class="form-control" accept="image/*">
+            <input type="hidden" name="imageBase64" id="imageBase64">
+            <div id="previewContainer" class="mt-2 d-none">
+                <img id="imagePreview" src="#" alt="Aperçu" style="max-width: 200px;" class="img-thumbnail">
+            </div>
+        </div>
+
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a href="/builds" class="btn btn-secondary me-md-2">Annuler</a>
             <button type="submit" class="btn btn-primary">Publier le Build</button>
         </div>
     </form>
+
+    {% block javascript %}
+    <script>
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('imagePreview').src = event.target.result;
+                    document.getElementById('previewContainer').classList.remove('d-none');
+                    document.getElementById('imageBase64').value = event.target.result.split(',')[1];
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        </script>
+    {% endblock %}
+
 </section>
 {% endblock %}

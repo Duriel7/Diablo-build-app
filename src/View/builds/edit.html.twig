@@ -1,0 +1,87 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Modifier un Build - {{ parent() }}{% endblock %}
+
+{% block body %}
+<section class="container mt-5">
+    <h1 class="mb-4">Reforger un Build</h1>
+
+    <form method="post" action="/builds/edit/{{ build.id }}" class="needs-validation">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        
+        <div class="mb-3">
+            <label for="name" class="form-label">Nom du Build :</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Ex: Barbare Trombe 2.0" value="{{ build.name }}" required>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="characterClass" class="form-label">Classe :</label>
+                <select class="form-select" id="characterClass" name="characterClass" required>
+                    <option value="" selected disabled>Choisissez une classe</option>
+                    <option value="Barbare" {{ build.characterClass == 'Barbare' ? 'selected' : '' }}>Barbare</option>
+                    <option value="Sorcier" {{ build.characterClass == 'Sorcier' ? 'selected' : '' }}>Sorcier</option>
+                    <option value="Druide" {{ build.characterClass == 'Druide' ? 'selected' : '' }}>Druide</option>
+                    <option value="Voleur" {{ build.characterClass == 'Voleur' ? 'selected' : '' }}>Voleur</option>
+                    <option value="Nécromancien" {{ build.characterClass == 'Nécromancien' ? 'selected' : '' }}>Nécromancien</option>
+                    <option value="Féticheur" {{ build.characterClass == 'Féticheur' ? 'selected' : '' }}>Féticheur</option>
+                    <option value="Croisé">Croisé</option>
+                    <option value="Moine">Moine</option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="game" class="form-label">Jeu :</label>
+                <select class="form-select" id="game" name="game" required>
+                    <option value="Diablo IV" {{ build.game == 'Diablo IV' ? 'selected' : '' }}>Diablo IV</option>
+                    <option value="Diablo III" {{ build.game == 'Diablo III' ? 'selected' : '' }}>Diablo III</option>
+                    <option value="Diablo II: Resurrected" {{ build.game == 'Diablo II: Resurrected' ? 'selected' : '' }}>Diablo II: Resurrected</option>
+                    <option value="Diablo Immortal" {{ build.game == 'Diablo Immortal' ? 'selected' : '' }}>Diablo Immortal</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description et stratégie :</label>
+            <textarea class="form-control" id="description" name="description" rows="6" placeholder="Expliquez les compétences, l'équipement et la rotation de sorts...">{{ build.description }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Image d'illustration :</label>
+            <div class="mb-2">
+                <img id="imagePreview" 
+                    src="{{ build.imageFileName ? '/uploads/builds/' ~ build.imageRepository ~ '/' ~ build.imageFileName : '/assets/img/placeholder-build.jpg' }}" 
+                    class="img-thumbnail" style="max-width: 200px;">
+            </div>
+            
+            <label for="imageFile" class="form-label">Changer l'image :</label>
+            <input type="file" id="imageFile" class="form-control" accept="image/*">
+            <input type="hidden" name="imageBase64" id="imageBase64">
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="/builds" class="btn btn-secondary me-md-2">Annuler</a>
+            <button type="submit" class="btn btn-primary">Republier le Build</button>
+        </div>
+    </form>
+
+    {% block javascript %}
+    <script>
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('imagePreview').src = event.target.result;
+                    document.getElementById('imageBase64').value = event.target.result.split(',')[1];
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        </script>
+    {% endblock %}
+
+</section>
+{% endblock %}

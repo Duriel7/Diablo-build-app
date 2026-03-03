@@ -13,7 +13,10 @@
 <div class="row g-5">
     <div class="col-md-4">
         <div class="card bg-dark border-secondary text-white shadow">
-            <img src="{{ build.imageFileName ? '/uploads/' ~ build.imageFileName : 'https://placehold.co/600x400/1a1a1a/c5a059?text=Diablo+Build' }}" class="card-img-top" alt="{{ build.name }}">
+            <img src="{{ build.imageFileName ? '/uploads/builds/' ~ build.imageRepository ~ '/' ~ build.imageFileName : 'https://placehold.co/600x400/1a1a1a/c5a059?text=Diablo+Build' }}" 
+                class="card-img-top" 
+                alt="{{ build.name }}"
+                style="object-fit: cover; max-height: 400px;">
             <div class="card-body">
                 <h5 class="text-gold">{{ build.characterClass }}</h5>
                 <p class="badge bg-danger">{{ build.game }}</p>
@@ -48,9 +51,13 @@
         {% if session.user is defined and (session.user.id == build.authorId or session.user.role == 'admin') %}
             <div class="admin-actions mt-3">
                 <a href="/builds/edit/{{ build.id }}" class="btn btn-warning">Modifier</a>
-                <form action="/builds/delete/{{ build.id }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Supprimer ?')">Supprimer</button>
-                </form>
+                {% if session.user.id == build.authorId or session.user.role == 'admin' %}
+                    <form action="/builds/delete/{{ build.id }}" method="POST" onsubmit="return confirm('Es-tu sûr de vouloir détruire ce build dans les tréfonds des Enfers ?');" class="d-inline">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-trash"></i> Supprimer le Build
+                        </button>
+                    </form>
+                {% endif %}
             </div>
         {% endif %}
     </div>

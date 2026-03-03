@@ -27,13 +27,15 @@
     {% for build in builds %}
         <div class="col">
             <div class="card h-100 bg-dark text-white border-secondary shadow">
+                <img src="{{ build.imageFileName ? '/uploads/builds/' ~ build.imageRepository ~ '/' ~ build.imageFileName : 'https://placehold.co/600x400/1a1a1a/c5a059?text=Diablo+Build' }}" 
+                    class="card-img-top" 
+                    alt="{{ build.name }}"
+                    style="object-fit: cover; height: 200px;">
+                
                 <div class="card-body">
                     <h3 class="card-title text-gold">{{ build.name }}</h3>
-                    <p class="card-text">
-                        <span class="badge bg-danger">{{ build.characterClass }}</span>
-                        <br>
-                        <small class="text-muted">Jeu : {{ build.game }}</small>
-                    </p>
+                    <span class="badge bg-danger mb-2">{{ build.characterClass }}</span>
+                    <p class="small text-muted mb-2">Jeu : {{ build.game }}</p>
                     <p class="card-text text-truncate">{{ build.description|striptags }}</p>
                 </div>
                 <div class="card-footer border-secondary bg-transparent">
