@@ -22,7 +22,7 @@ class DashboardController extends AbstractAdminController
         $this->render('admin/index.html.twig', [
             'usersCount' => $usersCount,
             'buildsCount' => $buildsCount,
-            'lastBuilds' => $this->buildRepository->SqlGetAllBuildsPaginated(5, 0)
+            'lastBuilds' => $this->buildRepository->SqlGetAllBuildsPaginated("", 5, 0)
         ]);
     }
 }

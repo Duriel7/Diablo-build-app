@@ -181,6 +181,25 @@ if ($uri === '/profile/update' && $method === 'POST') {
     exit;
 }
 
+//Edit a build routes
+if (preg_match('#^/builds/edit/(\d+)$#', $uri, $matches) && $method === 'GET') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
+    $controller->edit((int)$matches[1]);
+    exit;
+}
+if (preg_match('#^/builds/edit/(\d+)$#', $uri, $matches) && $method === 'POST') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
+    $controller->updateBuild((int)$matches[1]);
+    exit;
+}
+
+//Delete a build route
+if (preg_match('#^/builds/delete/(\d+)$#', $uri, $matches) && $method === 'POST') {
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
+    $controller->deleteBuild((int)$matches[1]);
+    exit;
+}
+
 //Download build PDF
 if (preg_match('#^/builds/download/(\d+)$#', $uri, $matches)) {
     $id = (int)$matches[1];
