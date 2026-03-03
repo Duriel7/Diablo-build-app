@@ -46,6 +46,7 @@ class BuildRepository {
         $sql = "
             SELECT 
                 b.id, b.name, b.characterClass, b.description, b.game, b.createdAt,
+                b.imageRepository, b.imageFileName,
                 u.nickname AS authorNickname
             FROM builds b
             JOIN users u ON u.id = b.author_id
@@ -128,10 +129,10 @@ class BuildRepository {
             $statement->bindValue(':description', $build->getDescription(), \PDO::PARAM_STR);
             $statement->bindValue(':author_id', $build->getAuthorId(), \PDO::PARAM_INT);
             $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
-            $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
+            $statement->bindValue(':isDraft', $build->getIsDraft() ? 1 : 0, \PDO::PARAM_INT);
             $statement->bindValue(':version', $build->getVersion(), \PDO::PARAM_INT);
             $statement->bindValue(':createdAt', $build->getCreatedAt()->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
-            $statement->bindValue(':updatedAt', $build->getUpdatedAt() ? $build->getUpdatedAt()->format('Y-m-d H:i:s') : null, $build->getUpdatedAt() ? \PDO::PARAM_STR : \PDO::PARAM_NULL);
+            $statement->bindValue(':updatedAt', null, \PDO::PARAM_NULL);
             $statement->bindValue(':imageRepository', $build->getImageRepository(), \PDO::PARAM_STR);
             $statement->bindValue(':imageFileName', $build->getImageFileName(), \PDO::PARAM_STR);
             //Execute statement
@@ -141,7 +142,7 @@ class BuildRepository {
         } catch (\Exception $e) {
             // Handle exception (you can log it or rethrow it)
             error_log("Error creating build: " . $e->getMessage());
-            return null; //FIX ME : need to throw an exception
+            return null;
         }
     }
 
@@ -155,7 +156,7 @@ class BuildRepository {
         $statement->bindValue(':author_id', $build->getAuthorId(), \PDO::PARAM_INT);
         $statement->bindValue(':game', $build->getGame(), \PDO::PARAM_STR);
         $statement->bindValue(':isDraft', $build->getIsDraft(), \PDO::PARAM_BOOL);
-        $statement->bindValue(':version', $build->getVersion(), \PDO::PARAM_INT);
+        $statement->bindValue(':version', $build->getVersion() + 1, \PDO::PARAM_INT);
         $statement->bindValue(':updatedAt', $build->getUpdatedAt() ? $build->getUpdatedAt()->format('Y-m-d H:i:s') : null, $build->getUpdatedAt() ? \PDO::PARAM_STR : \PDO::PARAM_NULL);
         $statement->bindValue(':imageRepository', $build->getImageRepository(), \PDO::PARAM_STR);
         $statement->bindValue(':imageFileName', $build->getImageFileName(), \PDO::PARAM_STR);

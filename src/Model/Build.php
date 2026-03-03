@@ -18,6 +18,11 @@ class Build implements JsonSerializable {
     private ?string $imageRepository;
     private ?string $imageFileName;
 
+    //Constructor
+    public function __construct() {
+        $this->updatedAt = null;
+    }
+
     //Getters and Setters
     public function getId(): int
     {

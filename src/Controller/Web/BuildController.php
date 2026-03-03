@@ -75,20 +75,142 @@ class BuildController extends AbstractWebController
             $build->setCharacterClass($data['characterClass']);
             $build->setDescription($data['description']);
             $build->setGame($data['game']);
-            
             $build->setAuthorId($userSession['id']); 
             
             $build->setVersion(1);
             $build->setCreatedAt(new \DateTimeImmutable());
+            $build->setUpdatedAt(null);
+            $build->setIsDraft(false);
+            $build->setImageRepository('');
+            $build->setImageFileName('');
+
+            if (!empty($data['imageBase64'])) {
+                $repo = date('Y/m');
+                $fileName = uniqid() . '.jpg';
+                $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/builds/' . $repo;
+
+                if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
+                file_put_contents($uploadDir . '/' . $fileName, base64_decode($data['imageBase64']));
+                
+                $build->setImageRepository($repo);
+                $build->setImageFileName($fileName);
+            } else {
+                $build->setImageRepository('');
+                $build->setImageFileName('');
+            }
 
             $id = $this->buildRepository->SqlCreateBuild($build);
 
             if ($id) {
-                $this->redirect('/builds');
+                $this->redirect('/builds/' . $id);
             } else {
-                $this->render('builds/create.html.twig', ['error' => 'Erreur de forge']);
+                $this->render('builds/create.html.twig', [
+                    'error' => 'La forge a échoué. Vérifiez vos cristaux de sang (champs invalides).'
+                ]);
             }
         }
+    }
+
+    //Edit build form
+    public function edit(int $id): void {
+        $build = $this->buildRepository->SqlGetBuildById($id);
+        
+        if (!$build || ($build->getAuthorId() !== ($_SESSION['user']['id'] ?? null) && $_SESSION['user']['role'] !== 'admin')) {
+            $this->redirect('/builds');
+            return;
+        }
+
+        $this->render('builds/edit.html.twig', ['build' => $build]);
+    }
+    public function updateBuild(int $id): void {
+        $userSession = $_SESSION['user'] ?? null;
+        if (!$userSession) {
+            $this->redirect('/login');
+            return;
+        }
+
+        $build = $this->buildRepository->SqlGetBuildById($id);
+
+        if (!$build || ($build->getAuthorId() !== $userSession['id'] && $userSession['role'] !== 'admin')) {
+            $this->redirect('/builds');
+            return;
+        }
+
+        if ($this->request->getMethod() === 'POST') {
+            $data = $this->request->getPost();
+
+            $build->setName($data['name']);
+            $build->setCharacterClass($data['characterClass']);
+            $build->setDescription($data['description']);
+            $build->setGame($data['game']);
+            $build->setVersion($build->getVersion() + 1);
+            $build->setUpdatedAt(new \DateTime());
+
+            if (!empty($data['imageBase64'])) {
+                if (!empty($build->getImageFileName())) {
+                    $oldPath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/builds/' . $build->getImageRepository() . '/' . $build->getImageFileName();
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                $repo = date('Y/m');
+                $fileName = uniqid() . '_build.jpg';
+                $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/builds/' . $repo;
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                file_put_contents($uploadDir . '/' . $fileName, base64_decode($data['imageBase64']));
+                
+                $build->setImageRepository($repo);
+                $build->setImageFileName($fileName);
+            }
+
+            $success = $this->buildRepository->SqlUpdateBuild($build);
+
+            if ($success) {
+                $this->redirect('/builds/' . $id . '?success=updated');
+            } else {
+                $this->render('builds/edit.html.twig', [
+                    'build' => $build,
+                    'error' => 'Échec de la mise à jour du build.'
+                ]);
+            }
+        }
+    }
+
+    //Delete a build
+    public function deleteBuild(int $id): void {
+        $userSession = $_SESSION['user'] ?? null;
+        if (!$userSession) {
+            $this->redirect('/login');
+            return;
+        }
+
+        $build = $this->buildRepository->SqlGetBuildById($id);
+
+        if (!$build) {
+            $this->redirect('/builds');
+            return;
+        }
+
+        if ($build->getAuthorId() !== $userSession['id'] && $userSession['role'] !== 'admin') {
+            $this->redirect('/builds?error=unauthorized');
+            return;
+        }
+
+        if (!empty($build->getImageFileName())) {
+            $filePath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/builds/' . $build->getImageRepository() . '/' . $build->getImageFileName();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+
+        $this->buildRepository->SqlDeleteBuild($id);
+
+        $this->redirect('/builds?success=deleted');
     }
 
     //Download build as PDF
