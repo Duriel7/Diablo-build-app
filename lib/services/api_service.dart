@@ -3,7 +3,10 @@ import 'package:http/http.dart' as http;
 import '../models/build_model.dart';
 
 class ApiService {
-  static const String baseUrl = "http://10.176.128.195:8080/api"; 
+  //API URL for the backend API from enviornment variables
+  static const String apiIp = String.fromEnvironment('API_IP', defaultValue: 'localhost');
+  static const String apiPort = String.fromEnvironment('API_PORT', defaultValue: '8080');
+  static const String baseUrl = "http://$apiIp:$apiPort/api";
 
   Future<List<Build>> fetchBuilds() async {
     try {
