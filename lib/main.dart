@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:diablo_build_app/pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
           titleTextStyle: TextStyle(color: Color(0xFFC5A059), fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
-      home: const MyHomePage(title: 'Diablo Build App'),
+      home: const MyHomePage(title: 'Sanctuaire : Forge'),
     );
   }
 }
