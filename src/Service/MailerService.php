@@ -16,6 +16,16 @@ class MailerService
         $this->mailer = new Mailer($transport);
     }
 
+    public function sendWelcomeEmail(string $to, string $nickname) {
+        $email = (new Email())
+            ->from($_ENV['ADMIN_MAIL'])
+            ->to($to)
+            ->subject("Bienvenue Nephalem !")
+            ->html("<h1>Gloire à toi, $nickname !</h1><p>Ton compte est prêt !</p>");
+
+        $this->mailer->send($email);
+    }
+
     public function sendReportWithPdf(string $adminEmail, string $buildName, string $pdfContent): void {
         $email = (new Email())
             ->from('system@diablo-builds.fr')

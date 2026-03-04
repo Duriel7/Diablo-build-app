@@ -5,6 +5,7 @@ namespace Diablo\Controller\Api;
 use Diablo\Core\Request;
 use Diablo\Repository\UserRepository;
 use Diablo\Model\User;
+use Diablo\Service\MailerService;
 
 class UserController extends AbstractApiController
 {
@@ -49,6 +50,9 @@ class UserController extends AbstractApiController
         if (!$id) {
             $this->error('Failed to create account', 500);
         }
+
+        $notifService = new MailerService();
+        $notifService->sendWelcomeEmail($user->getEmail(), $user->getNickname());
 
         $this->success(['id' => $id, 'message' => 'User registered successfully'], 201);
     }
