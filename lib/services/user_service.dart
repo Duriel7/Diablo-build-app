@@ -4,6 +4,7 @@ import 'package:diablo_build_app/models/user_model.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
   //Register URL for the backend API from enviornment variables
@@ -30,23 +31,38 @@ void triggerSuccessVibration() async {
     }
   }
 
-  Future<bool> registerUser(User user) async {
+  Future<Map<String, dynamic>?> registerUser(User user) async {
+    final url = Uri.parse("http://$apiIp:$apiPort/api/register");
+    
     try {
       final response = await http.post(
-        Uri.parse(registerUrl),
+        url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(user.toJson()),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return true;
-      } else {
-        print("Erreur serveur: ${response.body}");
-        return false;
+        return jsonDecode(response.body);
       }
+      return null;
     } catch (e) {
-      print("Erreur réseau: $e");
-      return false;
+      print("Erreur : $e");
+      return null;
     }
+  }
+
+  Future<void> saveUserLocally(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    String userJson = jsonEncode(userData);
+    await prefs.setString('user_session', userJson);
+  }
+
+  Future<Map<String, dynamic>?> getLocalUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userJson = prefs.getString('user_session');
+    if (userJson != null) {
+      return jsonDecode(userJson);
+    }
+    return null;
   }
 }

@@ -26,7 +26,7 @@ class UserController extends AbstractApiController
             $this->error('Missing required fields (email, password, nickname, city)', 400);
         }
 
-        //Check if email alreayd exists
+        //Check if email already exists
         if ($this->userRepository->SqlGetUserByEmail($data['email'])) {
             $this->error('Email already exists', 409);
         }
@@ -54,7 +54,15 @@ class UserController extends AbstractApiController
         $notifService = new MailerService();
         $notifService->sendWelcomeEmail($user->getEmail(), $user->getNickname());
 
-        $this->success(['id' => $id, 'message' => 'User registered successfully'], 201);
+        $userData = [
+            'id' => $id,
+            'nickname' => $user->getNickname(),
+            'role' => $user->getRole(),
+            'avatar' => $user->getAvatarRepository() . '/' . $user->getAvatarFileName(),
+            'email' => $user->getEmail()
+        ];
+
+        $this->success(['user' => $userData, 'message' => 'User registered successfully'], 201);
     }
 
     //Take user profile

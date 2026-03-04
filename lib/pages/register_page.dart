@@ -38,9 +38,11 @@ class _RegisterPageState extends State<RegisterPage> {
           longitude: pos?.longitude,
         );
 
-        bool success = await _userService.registerUser(newUser);
+        final Map<String, dynamic>? responseData = await _userService.registerUser(newUser);
 
-        if (success) {
+        if (responseData != null && responseData.containsKey('user')) {
+          final userData = responseData['user'];
+          await _userService.saveUserLocally(userData);
           _userService.triggerSuccessVibration();
           _showSuccessDialog(pos);
         } else {
@@ -71,7 +73,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false),
             child: const Text("REJOINDRE LE COMBAT", style: TextStyle(color: Color(0xFF8B0000), fontWeight: FontWeight.bold)),
           ),
         ],
