@@ -38,7 +38,6 @@ class _RegisterPageState extends State<RegisterPage> {
           longitude: pos?.longitude,
         );
 
-        // L'APPEL RÉEL EST ICI MAINTENANT :
         bool success = await _userService.registerUser(newUser);
 
         if (success) {
@@ -84,22 +83,22 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("REJOINDRE LE SANCTUAIRE")),
-      body: SingleChildScrollView( // Ajout du scroll pour éviter que le clavier cache tout
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              // NOUVEAU : CHAMP PSEUDO
               TextFormField(
+                textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(labelText: "Pseudo", border: OutlineInputBorder()),
                 validator: (v) => v!.isEmpty ? "Nom de héros requis" : null,
                 onSaved: (v) => _nickname = v!,
               ),
               const SizedBox(height: 15),
 
-              // NOUVEAU : CHAMP VILLE
               TextFormField(
+                textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(labelText: "Ville", border: OutlineInputBorder()),
                 validator: (v) => v!.isEmpty ? "La cité est requise" : null,
                 onSaved: (v) => _city = v!,
