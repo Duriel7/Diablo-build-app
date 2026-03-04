@@ -1,17 +1,26 @@
+import 'package:diablo_build_app/pages/register_page.dart';
+import 'package:diablo_build_app/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:diablo_build_app/pages/home_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final userService = UserService();
+  final userData = await userService.getLocalUser();
+  final bool loggedIn = userData != null;
+
+  runApp(MyApp(isLoggedIn: loggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  final bool isLoggedIn;
+  const MyApp({super.key, required this.isLoggedIn});
   @override
   Widget build(BuildContext context) {
+    
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Diablo Build App',
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF1A1A1A), // equivalent of the --dark-bg in my CSS
@@ -24,7 +33,12 @@ class MyApp extends StatelessWidget {
           titleTextStyle: TextStyle(color: Color(0xFFC5A059), fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
-      home: const MyHomePage(title: 'Sanctuaire : Forge'),
+      //home: const MyHomePage(title: 'Sanctuaire : Forge'),
+      home: isLoggedIn ? const MyHomePage(title: 'Sanctuaire : Forge') : const RegisterPage(),
+      routes: {
+        '/register': (context) => const RegisterPage(),
+        '/home': (context) => const MyHomePage(title: 'Sanctuaire : Forge'),
+      },
     );
   }
 }
