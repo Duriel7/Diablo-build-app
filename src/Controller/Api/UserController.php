@@ -16,56 +16,7 @@ class UserController extends AbstractApiController
         parent::__construct($request);
     }
 
-    //New user subscription function
-    public function register(): void
-    {
-        $data = $this->request->getJson();
-
-        //Validate mandatory fields
-        if (!isset($data['nickname'], $data['city'], $data['email'], $data['password'])) {
-            $this->error('Missing required fields (email, password, nickname, city)', 400);
-        }
-
-        //Check if email already exists
-        if ($this->userRepository->SqlGetUserByEmail($data['email'])) {
-            $this->error('Email already exists', 409);
-        }
-
-        //User object creation
-        $user = new User();
-        $user->setNickname($data['nickname']);
-        $user->setBio($data['bio'] ?? null);
-        $user->setRegisteredAt(new \DateTimeImmutable());
-        $user->setCity($data['city']);
-        $user->setLatitude($data['latitude'] ?? 0.0);
-        $user->setLongitude($data['longitude'] ?? 0.0);
-        $user->setEmail($data['email']);
-        $user->setPasswordHashed(password_hash($data['password'], PASSWORD_BCRYPT));
-        $user->setRole(strtolower('user'));
-        $user->setAvatarRepository($data['avatarRepository'] ?? 'default');
-        $user->setAvatarFileName($data['avatarFileName'] ?? 'user.png');
-
-        $id = $this->userRepository->SqlCreateUser($user);
-
-        if (!$id) {
-            $this->error('Failed to create account', 500);
-        }
-
-        $notifService = new MailerService();
-        $notifService->sendWelcomeEmail($user->getEmail(), $user->getNickname());
-
-        $userData = [
-            'id' => $id,
-            'nickname' => $user->getNickname(),
-            'role' => $user->getRole(),
-            'avatar' => $user->getAvatarRepository() . '/' . $user->getAvatarFileName(),
-            'email' => $user->getEmail()
-        ];
-
-        $this->success(['user' => $userData, 'message' => 'User registered successfully'], 201);
-    }
-
-    //Take user profile
+    //See user profile
     public function profile(array $authData): void
     {
         $user = $this->userRepository->SqlGetUserById($authData['id']);

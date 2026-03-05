@@ -220,16 +220,14 @@ if (preg_match('#^/builds/report/(\d+)$#', $uri, $matches) && $method === 'POST'
 //-User handling-
 //Register route
 if ($uri === '/api/register' && $method === 'POST') {
-    $auth = $jwtMiddleware->requireAuth();
-    $controller = new UserController($request, $userRepository);
+    $controller = new AuthController($request, $userRepository, $authService, $jwtService);
     $controller->register();
     exit;
 }
 
 //Login route
 if ($uri === '/api/login' && $method === 'POST') {
-    $auth = $jwtMiddleware->requireAuth();
-    $controller = new AuthController($request, $authService);
+    $controller = new AuthController($request, $userRepository, $authService, $jwtService);
     $controller->login();
     exit;
 }
