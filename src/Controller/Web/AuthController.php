@@ -6,6 +6,7 @@ use Diablo\Core\Request;
 use Diablo\Service\AuthService;
 use Diablo\Repository\UserRepository;
 use Diablo\Model\User;
+use Diablo\Service\MailerService;
 
 class AuthController extends AbstractWebController
 {
@@ -99,6 +100,8 @@ class AuthController extends AbstractWebController
                     'nickname' => $user->getNickname(),
                     'role' => $user->getRole()
                 ];
+                $notifService = new MailerService();
+                $notifService->sendWelcomeEmail($user->getEmail(), $user->getNickname());
                 $this->redirect('/profile');
                 return;
             } else {

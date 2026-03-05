@@ -217,23 +217,22 @@ if (preg_match('#^/builds/report/(\d+)$#', $uri, $matches) && $method === 'POST'
 }
 
 //--- API ROUTES ---
+//-User handling-
 //Register route
 if ($uri === '/api/register' && $method === 'POST') {
-    $controller = new UserController($request, $userRepository);
+    $controller = new AuthController($request, $userRepository, $authService, $jwtService);
     $controller->register();
     exit;
 }
 
 //Login route
 if ($uri === '/api/login' && $method === 'POST') {
-
-    $controller = new AuthController($request, $authService);
+    $controller = new AuthController($request, $userRepository, $authService, $jwtService);
     $controller->login();
-
     exit;
 }
 
-//Profile of connected user - the "me" route
+//Profile of connected user - the "me" routes
 if ($uri === '/api/profile' && $method === 'GET') {
     $auth = $jwtMiddleware->requireAuth();
     $controller = new UserController($request, $userRepository);
@@ -247,71 +246,54 @@ if ($uri === '/api/profile' && ($method === 'PUT' || $method === 'PATCH')) {
     exit;
 }
 
-//Dynamic routes - ID extraction
-$parts = explode('/', $uri);
-$resourceId = isset($parts[3]) && is_numeric($parts[3]) ? (int)$parts[3] : null;
-
-//Route - DELETE : /api/builds/{id}
-if (strpos($uri, '/api/builds/') === 0 && $method === 'DELETE' && $resourceId) {
-    $auth = $jwtMiddleware->requireAuth();
-    $controller = new BuildController($request, $buildRepository, $auth);
-    $controller->delete($resourceId);
+//-Build handling-
+//List all builds publicly
+if ($uri === '/api/builds' && $method === 'GET') {
+    $controller = new BuildController( $request, $buildRepository, []);
+    $controller->index();
     exit;
 }
 
-//Route - UPDATE : /api/builds/{id}
-if (strpos($uri, '/api/builds/') === 0 && ($method === 'PUT' || $method === 'PATCH') && $resourceId) {
+//Route - CREATE build
+if ($uri === '/api/build/create' && $method === 'POST') {
     $auth = $jwtMiddleware->requireAuth();
     $controller = new BuildController($request, $buildRepository, $auth);
-    $controller->update($resourceId);
-    exit;
-}
-
-//Create build protected route
-if ($uri === '/api/builds' && $method === 'POST') {
-    $auth = $jwtMiddleware->requireAuth();
-
-    $controller = new BuildController(
-        $request,
-        $buildRepository,
-        $auth
-    );
-
     $controller->create();
     exit;
 }
 
-//List all builds
-if ($uri === '/api/builds' && $method === 'GET') {
+//Route - UPDATE build
+if (preg_match('#^/api/builds/(\d+)$#', $uri, $matches) && ($method === 'PUT' || $method === 'PATCH')) {
+    $auth = $jwtMiddleware->requireAuth();
+    $controller = new BuildController($request, $buildRepository, $auth);
+    $controller->update((int)$matches[1]);
+    exit;
+}
 
-    $controller = new BuildController(
-        $request,
-        $buildRepository,
-        []
-    );
-
-    $controller->index();
+//Route - DELETE build
+if (preg_match('#^/api/builds/(\d+)$#', $uri, $matches) && $method === 'DELETE') {
+    $auth = $jwtMiddleware->requireAuth();
+    $controller = new BuildController($request, $buildRepository, $auth);
+    $controller->delete((int)$matches[1]);
     exit;
 }
 
 //--- ADMIN API ROUTES ---
 //Delete build (Admin)
-//Route: DELETE /api/admin/builds/{id}
-if (strpos($uri, '/api/admin/builds/') === 0 && $method === 'DELETE') {
+//Route: DELETE build
+if (strpos($uri, '/api/admin/build/') === 0 && $method === 'DELETE') {
     $resourceId = (int)basename($uri);
-    $auth = $jwtMiddleware->requireAuth(); // Le middleware vérifie le token
-    
+    $auth = $jwtMiddleware->requireAuth();
     $controller = new AdminController($request, $buildRepository, $userRepository, $auth);
     $controller->deleteBuild($resourceId);
     exit;
 }
 
 //Delete user (Admin)
-//Route: DELETE /api/admin/users/{id}
-if (strpos($uri, '/api/admin/users/') === 0 && $method === 'DELETE') {
+//Route: DELETE user
+if (strpos($uri, '/api/admin/user/') === 0 && $method === 'DELETE') {
     $resourceId = (int)basename($uri);
     $auth = $jwtMiddleware->requireAuth();
-    
     $controller = new AdminController($request, $buildRepository, $userRepository, $auth);
     $controller->deleteUser($resourceId);
     exit;
