@@ -64,11 +64,12 @@ class _RegisterPageState extends State<RegisterPage> {
       throw Exception(responseData?['message'] ?? "Erreur de structure de données serveur.");
 
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur : $e"), backgroundColor: Colors.red),
         );
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
@@ -87,7 +88,10 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            },
             child: const Text("REJOINDRE LE COMBAT", style: TextStyle(color: Color(0xFF8B0000), fontWeight: FontWeight.bold)),
           ),
         ],

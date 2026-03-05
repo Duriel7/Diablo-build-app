@@ -61,27 +61,28 @@ class UserService {
         body: jsonEncode({"email": email, "password": password}),
       );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'];
-          if (data is Map) {
-            final dynamic rawUser = data['user'];
-            if (rawUser != null && rawUser is Map) {
-              final Map<String, dynamic> userMap = Map<String, dynamic>.from(rawUser);
-              final dynamic rawToken = data['token'];
-              if (rawToken != null) {
-                userMap['token'] = rawToken.toString();
-              }
-              await saveUserLocally(userMap);
-              triggerSuccessVibration();
-              return;
-            }
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        final data = responseData['data'];
+        if (data is Map && data['user'] is Map) {
+          final Map<String, dynamic> userMap = Map<String, dynamic>.from(data['user']);
+          
+          if (data['token'] != null) {
+            userMap['token'] = data['token'].toString();
           }
+          print("DONNÉES USER REÇUES DU SERVEUR : $userMap");
+          await saveUserLocally(userMap);
+          triggerSuccessVibration();
+          return;
         }
-      }
+      } 
+      
+      throw responseData['message'] ?? "Identifiants invalides.";
+
     } catch (e) {
       print("Erreur de login : $e");
+      rethrow; 
     }
   }
 
