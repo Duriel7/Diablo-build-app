@@ -16,12 +16,36 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _currentLoggedIn = false;
   late Future<List<Build>> futureBuilds;
   final UserService _userService = UserService();
+  final ScrollController _scrollController = ScrollController();
+  bool _isFetchingMore = false;
 
   @override
   void initState() {
     super.initState();
     _checkStatus();
     futureBuilds = ApiService().fetchBuilds();
+
+    //ScrollController listener
+    _scrollController.addListener(() {
+      double maxScroll = _scrollController.position.maxScrollExtent;
+      double currentScroll = _scrollController.position.pixels;
+      
+      if (currentScroll >= (maxScroll * 0.8) && !_isFetchingMore) {
+        _loadMoreBuilds();
+      }
+    });
+  }
+
+  void _loadMoreBuilds() async {
+    setState(() => _isFetchingMore = true);
+    
+    print("DEBUG : Seuil de 80% atteint ! Chargement de la suite...");
+    
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (mounted) {
+      setState(() => _isFetchingMore = false);
+    }
   }
 
   Future<void> _checkStatus() async {
