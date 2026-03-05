@@ -54,11 +54,12 @@ class _AddBuildPageState extends State<AddBuildPage> {
           throw Exception("La forge a échoué. Vérifie ta connexion.");
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur : $e"), backgroundColor: Colors.red),
         );
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
@@ -68,7 +69,7 @@ class _AddBuildPageState extends State<AddBuildPage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Forger un nouveau Build")),
       body: _isLoading 
-        ? const Center(child: CircularProgressIndicator()) // Affiche un chargement si _isLoading est vrai
+        ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Form(
@@ -82,7 +83,7 @@ class _AddBuildPageState extends State<AddBuildPage> {
                   ),
                   const SizedBox(height: 15),
                   DropdownButtonFormField<String>(
-                    value: characterClass, // CHANGÉ: 'value' au lieu de 'initialValue'
+                    value: characterClass,
                     decoration: const InputDecoration(labelText: "Classe", border: OutlineInputBorder()),
                     items: classes.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                     onChanged: (v) => setState(() => characterClass = v!),
@@ -95,7 +96,7 @@ class _AddBuildPageState extends State<AddBuildPage> {
                   ),
                   const SizedBox(height: 25),
                   ElevatedButton(
-                    onPressed: _isLoading ? null : _submit, // Désactive le bouton pendant le chargement
+                    onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
                     child: const Text("CRÉER LE BUILD"),
                   )
