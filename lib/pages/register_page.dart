@@ -38,16 +38,30 @@ class _RegisterPageState extends State<RegisterPage> {
           longitude: pos?.longitude,
         );
 
-        final Map<String, dynamic>? responseData = await _userService.registerUser(newUser);
+      final Map<String, dynamic>? responseData = await _userService.registerUser(newUser);
 
-        if (responseData != null && responseData.containsKey('user')) {
-          final userData = responseData['user'];
-          await _userService.saveUserLocally(userData);
-          _userService.triggerSuccessVibration();
-          _showSuccessDialog(pos);
-        } else {
-          throw Exception("Le serveur a refusé l'inscription.");
+      if (responseData != null && responseData['success'] == true) {
+        final data = responseData['data'];
+        
+        if (data is Map) {
+          final dynamic rawUser = data['user'];
+          
+          if (rawUser != null && rawUser is Map) {
+            final Map<String, dynamic> userMap = Map<String, dynamic>.from(rawUser);
+            final dynamic rawToken = data['token'];
+            if (rawToken != null) {
+              userMap['token'] = rawToken.toString();
+            }
+            
+            await _userService.saveUserLocally(userMap);
+            _userService.triggerSuccessVibration();
+            _showSuccessDialog(pos);
+            return;
+          }
         }
+      }
+
+      throw Exception(responseData?['message'] ?? "Erreur de structure de données serveur.");
 
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
