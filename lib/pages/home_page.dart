@@ -1,8 +1,8 @@
 import 'package:diablo_build_app/pages/details_page.dart';
-import 'package:diablo_build_app/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import '../models/build_model.dart';
 import '../services/api_service.dart';
+import '../services/user_service.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -13,12 +13,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _currentLoggedIn = false;
   late Future<List<Build>> futureBuilds;
+  final UserService _userService = UserService();
 
   @override
   void initState() {
     super.initState();
+    _checkStatus();
     futureBuilds = ApiService().fetchBuilds();
+  }
+
+  Future<void> _checkStatus() async {
+      try {
+        final user = await _userService.getLocalUser();
+        if (mounted) {
+          setState(() {
+            _currentLoggedIn = (user != null);
+          });
+        }
+      } catch (e) {
+        print("Erreur check status: $e");
+      }
   }
 
   @override
@@ -30,14 +46,50 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.black),
-              child: Column(
-                children: [
-                  Icon(Icons.shield, color: Color(0xFFC5A059), size: 50),
-                  SizedBox(height: 10),
-                  Text("SANCTUAIRE", style: TextStyle(color: Color(0xFFC5A059), fontSize: 20)),
-                ],
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Colors.black),
+              child: FutureBuilder<Map<String, dynamic>?>(
+                future: _userService.getLocalUser(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Color(0xFFC5A059)),
+                    );
+                  }
+                  if (snapshot.hasData && snapshot.data != null) {
+                    final user = snapshot.data!;
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.shield, color: Color(0xFFC5A059), size: 40),
+                        const SizedBox(height: 10),
+                        Text(
+                          user['nickname']?.toUpperCase() ?? "NEPHALEM",
+                          style: const TextStyle(
+                            color: Color(0xFFC5A059), 
+                            fontSize: 18, 
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
+                        Text(
+                          user['email'] ?? "",
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ],
+                    );
+                  }
+                  return const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.account_circle, color: Colors.grey, size: 50),
+                      const SizedBox(height: 10),
+                      Text(
+                        "MODE VISITEUR", 
+                        style: TextStyle(color: Colors.grey, fontSize: 16)
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             ListTile(
@@ -46,11 +98,30 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: const Icon(Icons.person_add, color: Color(0xFFC5A059)),
-              title: const Text("Rejoindre le combat", style: TextStyle(color: Colors.white)),
+              leading: Icon(
+                _currentLoggedIn ? Icons.logout : Icons.person_add,
+                color: Theme.of(context).colorScheme.secondary
+              ),
+              title: Text(
+                _currentLoggedIn ? "QUITTER LA PARTIE" : "REJOINDRE LE COMBAT",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onTap: () async {
+                if (_currentLoggedIn) {
+                  await _userService.logout();
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                } else {
+                  Navigator.pushNamed(context, '/login');
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.add_box, color: Colors.white),
+              title: const Text("FORGER UN BUILD"),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPage()));
+                Navigator.pushNamed(context, '/add-build');
               },
             ),
           ],
