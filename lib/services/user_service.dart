@@ -25,11 +25,11 @@ class UserService {
     return await Geolocator.getCurrentPosition();
   }
 
-void triggerSuccessVibration() async {
-    if (await Haptics.canVibrate()) {
-      await Haptics.vibrate(HapticsType.success);
+  void triggerSuccessVibration() async {
+      if (await Haptics.canVibrate()) {
+        await Haptics.vibrate(HapticsType.success);
+      }
     }
-  }
 
   Future<Map<String, dynamic>?> registerUser(User user) async {
     final url = Uri.parse("http://$apiIp:$apiPort/api/register");
@@ -49,6 +49,46 @@ void triggerSuccessVibration() async {
       print("Erreur : $e");
       return null;
     }
+  }
+
+  //Login
+  Future<void> loginUser(String email, String password) async {
+    final url = Uri.parse("http://$apiIp:$apiPort/api/login");
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
+          if (data is Map) {
+            final dynamic rawUser = data['user'];
+            if (rawUser != null && rawUser is Map) {
+              final Map<String, dynamic> userMap = Map<String, dynamic>.from(rawUser);
+              final dynamic rawToken = data['token'];
+              if (rawToken != null) {
+                userMap['token'] = rawToken.toString();
+              }
+              await saveUserLocally(userMap);
+              triggerSuccessVibration();
+              return;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print("Erreur de login : $e");
+    }
+  }
+
+  //Logout
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_session');
   }
 
   Future<void> saveUserLocally(Map<String, dynamic> userData) async {
