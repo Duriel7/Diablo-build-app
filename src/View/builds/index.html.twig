@@ -48,5 +48,22 @@
             <p class="fs-4 text-muted">Aucun build n'a encore été forgé dans le Sanctuaire.</p>
         </div>
     {% endfor %}
+    {% if totalPages > 1 %}
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
+                    <a class="page-item bg-dark border-secondary text-gold p-2" href="?page={{ currentPage - 1 }}&search={{ searchTerm }}">Précédent</a>
+                </li>
+                
+                <li class="page-item disabled">
+                    <span class="page-link bg-dark border-secondary text-light">Page {{ currentPage }} sur {{ totalPages }}</span>
+                </li>
+
+                <li class="page-item {{ currentPage == totalPages ? 'disabled' : '' }}">
+                    <a class="page-item bg-dark border-secondary text-gold p-2" href="?page={{ currentPage + 1 }}&search={{ searchTerm }}">Suivant</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
 </div>
 {% endblock %}
