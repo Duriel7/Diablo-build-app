@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:diablo_build_app/services/user_service.dart';
 import 'package:http/http.dart' as http;
 import '../models/build_model.dart';
 
@@ -23,6 +24,24 @@ class ApiService {
       }
     } catch (e) {
       throw Exception("Erreur de connexion : $e");
+    }
+  }
+
+  Future<bool> createBuild(Map<String, dynamic> buildData) async {
+    final url = Uri.parse("http://$apiIp:$apiPort/api/build/create");
+    final userService = UserService();
+    final userData = await userService.getLocalUser();
+    final token = userData?['token'];
+    
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $token",},
+        body: jsonEncode(buildData),
+      );
+      return response.statusCode == 201;
+    } catch (e) {
+      return false;
     }
   }
 }

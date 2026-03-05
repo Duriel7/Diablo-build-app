@@ -15,13 +15,51 @@ class _AddBuildPageState extends State<AddBuildPage> {
   String description = "";
   String game = "Diablo IV";
 
-  final List<String> classes = ["Barbare", "Sorcier", "Voleur", "Nécromancien", "Druide"];
+  bool _isLoading = false;
+  final List<String> classes = ["Barbare", "Sorcier", "Druide", "Voleur", "Nécromancien", "Féticheur", "Croisé", "Moine"];
+
+  void _showSuccessSnippet() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Le build a été forgé avec succès !"),
+        backgroundColor: Colors.green,
+      ),
+    );
+    Navigator.pop(context);
+  }
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Ici on appellera l'ApiService pour envoyer les données
-      // print("Envoi du build: $name pour $characterClass");
+      
+      setState(() => _isLoading = true);
+
+      try {
+        final buildData = {
+          'name': name,
+          'characterClass': characterClass,
+          'description': description,
+          'game': 'Diablo IV',
+          'isDraft': false,
+          'imageRepository': 'builds/v1',
+          'imageFileName': 'default.png',
+        };
+
+        final apiService = ApiService();
+        bool success = await apiService.createBuild(buildData);
+
+        if (success) {
+          _showSuccessSnippet();
+        } else {
+          throw Exception("La forge a échoué. Vérifie ta connexion.");
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur : $e"), backgroundColor: Colors.red),
+        );
+      } finally {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -29,40 +67,42 @@ class _AddBuildPageState extends State<AddBuildPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Forger un nouveau Build")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: "Nom du Build", border: OutlineInputBorder()),
-                validator: (v) => v!.isEmpty ? "Entrez un nom" : null,
-                onSaved: (v) => name = v!,
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator()) // Affiche un chargement si _isLoading est vrai
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: "Nom du Build", border: OutlineInputBorder()),
+                    validator: (v) => v!.isEmpty ? "Entrez un nom" : null,
+                    onSaved: (v) => name = v!,
+                  ),
+                  const SizedBox(height: 15),
+                  DropdownButtonFormField<String>(
+                    value: characterClass, // CHANGÉ: 'value' au lieu de 'initialValue'
+                    decoration: const InputDecoration(labelText: "Classe", border: OutlineInputBorder()),
+                    items: classes.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    onChanged: (v) => setState(() => characterClass = v!),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    maxLines: 3,
+                    decoration: const InputDecoration(labelText: "Description", border: OutlineInputBorder()),
+                    onSaved: (v) => description = v!,
+                  ),
+                  const SizedBox(height: 25),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _submit, // Désactive le bouton pendant le chargement
+                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                    child: const Text("CRÉER LE BUILD"),
+                  )
+                ],
               ),
-              const SizedBox(height: 15),
-              DropdownButtonFormField(
-                initialValue: characterClass,
-                decoration: const InputDecoration(labelText: "Classe", border: OutlineInputBorder()),
-                items: classes.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                onChanged: (v) => setState(() => characterClass = v!),
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                maxLines: 3,
-                decoration: const InputDecoration(labelText: "Description", border: OutlineInputBorder()),
-                onSaved: (v) => description = v!,
-              ),
-              const SizedBox(height: 25),
-              ElevatedButton(
-                onPressed: _submit,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-                child: const Text("CRÉER LE BUILD"),
-              )
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+      );
   }
 }
