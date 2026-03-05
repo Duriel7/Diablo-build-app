@@ -96,15 +96,26 @@ class AuthController extends AbstractApiController {
                 $data['password']
             );
 
-            return $this->json([
-                'success' => true,
-                'token' => $token
+            $user = $this->userRepository->SqlGetUserByEmail($data['email']);
+
+            $userData = [
+                'id' => $user->getId(),
+                'nickname' => $user->getNickname(),
+                'role' => $user->getRole(),
+                'avatar' => $user->getAvatarRepository() . '/' . $user->getAvatarFileName(),
+                'email' => $user->getEmail()
+            ];
+
+            return $this->success([
+                'token' => $token, 
+                'user' => $userData, 
+                'message' => 'Logged in successfully'
             ]);
 
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
-                'message' => 'Auth Controller - Invalid credentials.' . $e->getMessage()
+                'message' => 'Auth Controller - Invalid credentials. ' . $e->getMessage()
             ], 401);
         }
     }
