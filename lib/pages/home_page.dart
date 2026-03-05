@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         }
       } catch (e) {
-        print("Erreur check status: $e");
+        throw("Erreur check status: $e");
       }
   }
 
