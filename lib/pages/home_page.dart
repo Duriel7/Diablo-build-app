@@ -1,4 +1,5 @@
 import 'package:diablo_build_app/pages/details_page.dart';
+import 'package:diablo_build_app/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import '../models/build_model.dart';
 import '../services/api_service.dart';
@@ -14,18 +15,21 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool _currentLoggedIn = false;
-  late Future<List<Build>> futureBuilds;
   final UserService _userService = UserService();
   final ScrollController _scrollController = ScrollController();
+  
+  List<Build> buildsList = [];
+  bool _isLoading = true;
   bool _isFetchingMore = false;
+  int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     _checkStatus();
-    futureBuilds = ApiService().fetchBuilds();
+    _initLoad();
 
-    //ScrollController listener
+    //Scroll listener
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
@@ -36,29 +40,70 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _loadMoreBuilds() async {
-    setState(() => _isFetchingMore = true);
+/*   Future<void> _initLoad() async {
+    final firstPage = await ApiService().fetchBuilds(page: 1);
+    if (mounted) {
+      setState(() {
+        buildsList = firstPage;
+        _isLoading = false;
+      });
+    }
+  } */
+ Future<void> _initLoad() async {
+  try {
+    print("Tentative de chargement des builds...");
+    final firstPage = await ApiService().fetchBuilds(page: 1);
     
-    print("DEBUG : Seuil de 80% atteint ! Chargement de la suite...");
-    
-    await Future.delayed(const Duration(seconds: 1));
+    print("Nombre de builds récupérés : ${firstPage.length}");
 
     if (mounted) {
-      setState(() => _isFetchingMore = false);
+      setState(() {
+        buildsList = firstPage;
+        _isLoading = false;
+      });
+    }
+  } catch (e) {
+    print("ERREUR INITIAL LOAD : $e");
+    if (mounted) {
+      setState(() {
+        _isLoading = false; 
+      });
+    }
+  }
+}
+
+  Future<void> _loadMoreBuilds() async {
+    if (_isFetchingMore) return;
+    setState(() => _isFetchingMore = true);
+
+    _currentPage++;
+    final nextBuilds = await ApiService().fetchBuilds(page: _currentPage);
+    
+    if (mounted) {
+      setState(() {
+        buildsList.addAll(nextBuilds);
+        _isFetchingMore = false;
+      });
     }
   }
 
   Future<void> _checkStatus() async {
-      try {
-        final user = await _userService.getLocalUser();
-        if (mounted) {
-          setState(() {
-            _currentLoggedIn = (user != null);
-          });
-        }
-      } catch (e) {
-        throw("Erreur check status: $e");
+    try {
+      final user = await _userService.getLocalUser();
+      if (mounted) {
+        setState(() {
+          _currentLoggedIn = (user != null);
+        });
       }
+    } catch (e) {
+      print("Erreur check status: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -76,41 +121,45 @@ class _MyHomePageState extends State<MyHomePage> {
                 future: _userService.getLocalUser(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: Color(0xFFC5A059)),
-                    );
+                    return const Center(child: CircularProgressIndicator(color: Color(0xFFC5A059)));
                   }
                   if (snapshot.hasData && snapshot.data != null) {
                     final user = snapshot.data!;
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.shield, color: Color(0xFFC5A059), size: 40),
-                        const SizedBox(height: 10),
-                        Text(
-                          user['nickname']?.toUpperCase() ?? "NEPHALEM",
-                          style: const TextStyle(
-                            color: Color(0xFFC5A059), 
-                            fontSize: 18, 
-                            fontWeight: FontWeight.bold
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ProfilePage(user: user)),
+                        );
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.shield, color: Color(0xFFC5A059), size: 40),
+                          const SizedBox(height: 10),
+                          Text(
+                            user['nickname']?.toUpperCase() ?? "NEPHALEM", 
+                            style: const TextStyle(color: Color(0xFFC5A059), fontSize: 18, fontWeight: FontWeight.bold)
                           ),
-                        ),
-                        Text(
-                          user['email'] ?? "",
-                          style: const TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
-                      ],
+                          Text(
+                            user['email'] ?? "", 
+                            style: const TextStyle(color: Colors.grey, fontSize: 12)
+                          ),
+                          const SizedBox(height: 5),
+                          const Text(
+                            "VOIR MON PROFIL", 
+                            style: TextStyle(color: Color(0xFFC5A059), fontSize: 10, decoration: TextDecoration.underline)
+                          ),
+                        ],
+                      ),
                     );
                   }
                   return const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.account_circle, color: Colors.grey, size: 50),
-                      const SizedBox(height: 10),
-                      Text(
-                        "MODE VISITEUR", 
-                        style: TextStyle(color: Colors.grey, fontSize: 16)
-                      ),
+                      SizedBox(height: 10),
+                      Text("MODE VISITEUR", style: TextStyle(color: Colors.grey, fontSize: 16)),
                     ],
                   );
                 },
@@ -122,19 +171,12 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: Icon(
-                _currentLoggedIn ? Icons.logout : Icons.person_add,
-                color: Theme.of(context).colorScheme.secondary
-              ),
-              title: Text(
-                _currentLoggedIn ? "QUITTER LA PARTIE" : "REJOINDRE LE COMBAT",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              leading: Icon(_currentLoggedIn ? Icons.logout : Icons.person_add, color: const Color(0xFFC5A059)),
+              title: Text(_currentLoggedIn ? "QUITTER LA PARTIE" : "REJOINDRE LE COMBAT", style: const TextStyle(color: Colors.white)),
               onTap: () async {
                 if (_currentLoggedIn) {
                   await _userService.logout();
-                  if (!context.mounted) return;
-                  Navigator.pop(context);
+                  if (!mounted) return;
                   Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                 } else {
                   Navigator.pushNamed(context, '/login');
@@ -142,17 +184,14 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.add_box, color: Colors.white),
-              title: const Text("FORGER UN BUILD"),
-              onTap: () {
-                Navigator.pushNamed(context, '/add-build');
-              },
+               leading: const Icon(Icons.add_box, color: Colors.white),
+               title: const Text("FORGER UN BUILD", style: TextStyle(color: Colors.white)),
+               onTap: () => Navigator.pushNamed(context, '/add-build'),
             ),
           ],
         ),
       ),
       body: SafeArea(
-        bottom: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -161,37 +200,33 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("BIENVENUE SUR LE SANCTUAIRE", 
-                    style: TextStyle(color: Color(0xFFC5A059), fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text("BIENVENUE SUR LE SANCTUAIRE", style: TextStyle(color: Color(0xFFC5A059), fontSize: 22, fontWeight: FontWeight.bold)),
                   SizedBox(height: 5),
-                  Text("Derniers builds forgés par la communauté", 
-                    style: TextStyle(color: Colors.grey, fontSize: 14)),
+                  Text("Derniers builds forgés par la communauté", style: TextStyle(color: Colors.grey, fontSize: 14)),
                 ],
               ),
             ),
             Expanded(
-              child: FutureBuilder<List<Build>>(
-                future: futureBuilds,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator(color: Color(0xFFC5A059)));
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Erreur: ${snapshot.error}", style: const TextStyle(color: Colors.red)));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text("Aucun build trouvé dans le Sanctuaire."));
-                  }
-
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: snapshot.data!.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final build = snapshot.data![index];
-                      return _buildCard(build);
-                    },
-                  );
-                },
-              ),
+              child: _isLoading 
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFFC5A059)))
+                : buildsList.isEmpty
+                  ? const Center(child: Text("Aucun build trouvé dans le Sanctuaire.", style: TextStyle(color: Colors.white)))
+                  : ListView.separated(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(12),
+                      itemCount: buildsList.length + (_isFetchingMore ? 1 : 0),
+                      separatorBuilder: (context, index) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        if (index == buildsList.length) {
+                          return const Center(child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(color: Color(0xFFC5A059)),
+                          ));
+                        }
+                        final build = buildsList[index];
+                        return _buildCard(build);
+                      },
+                    ),
             ),
           ],
         ),
