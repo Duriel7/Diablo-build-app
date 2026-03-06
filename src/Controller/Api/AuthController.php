@@ -103,7 +103,12 @@ class AuthController extends AbstractApiController {
                 'nickname' => $user->getNickname(),
                 'role' => $user->getRole(),
                 'avatar' => $user->getAvatarRepository() . '/' . $user->getAvatarFileName(),
-                'email' => $user->getEmail()
+                'email' => $user->getEmail(),
+                'bio' => $user->getBio(),
+                'city' => $user->getCity(),
+                'latitude' => $user->getLatitude(),
+                'longitude' => $user->getLongitude(),
+                'registeredAt' => $user->getRegisteredAt()->format('d/m/Y'),
             ];
 
             return $this->success([

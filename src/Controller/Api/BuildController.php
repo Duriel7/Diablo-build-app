@@ -107,7 +107,7 @@ class BuildController extends AbstractApiController
         $offset = ($page - 1) * $limit;
 
         $total = $this->buildRepository->SqlCountBuilds($searchTerm);
-        $builds = $this->buildRepository->SqlGetAllBuildsPaginated($limit, $offset, $searchTerm);
+        $builds = $this->buildRepository->SqlGetAllBuildsPaginated($searchTerm, $limit, $offset);
 
         $data = [];
         foreach ($builds as $build) {

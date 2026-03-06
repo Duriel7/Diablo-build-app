@@ -112,8 +112,6 @@ if ($uri === '/login' && $method === 'GET') {
     $controller->loginForm();
     exit;
 }
-
-//Login form treatment
 if ($uri === '/login' && $method === 'POST') {
     $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
     $controller->login();
@@ -156,19 +154,6 @@ if ($uri === '/profile' && $method === 'GET') {
     exit;
 }
 
-//Create a build GET and POST routes
-if ($uri === '/builds/create' && $method === 'GET') {
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
-    $controller->create(); 
-    exit;
-}
-if ($uri === '/builds/create' && $method === 'POST') {
-    $auth = $_SESSION['user'] ?? null; //take user session to associate it with the build
-    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
-    $controller->store();
-    exit;
-}
-
 //Update profile route
 if ($uri === '/profile/edit' && $method === 'GET') {
     $controller = new \Diablo\Controller\Web\AuthController($request, $authService, $userRepository);
@@ -181,13 +166,43 @@ if ($uri === '/profile/update' && $method === 'POST') {
     exit;
 }
 
-//Edit a build routes
+//Create a build GET and POST routes
+if ($uri === '/builds/create' && $method === 'GET') {
+    if (!isset($_SESSION['user'])) { //protection against unauthenticated people
+        header('Location: /login');
+        exit;
+    }
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
+    $controller->create();
+    exit;
+}
+if ($uri === '/builds/create' && $method === 'POST') {
+    if (!isset($_SESSION['user'])) { //protection against unauthenticated people
+        header('HTTP/1.1 403 Forbidden');
+        echo "Accès interdit : Vous devez être connecté pour forger.";
+        exit;
+    }
+    $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
+    $controller->store();
+    exit;
+}
+
+//Edit a build GET and POST routes
 if (preg_match('#^/builds/edit/(\d+)$#', $uri, $matches) && $method === 'GET') {
+    if (!isset($_SESSION['user'])) { //protection against unauthenticated people
+        header('Location: /login');
+        exit;
+    }
     $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->edit((int)$matches[1]);
     exit;
 }
 if (preg_match('#^/builds/edit/(\d+)$#', $uri, $matches) && $method === 'POST') {
+    if (!isset($_SESSION['user'])) { //protection against unauthenticated people
+        header('HTTP/1.1 403 Forbidden');
+        echo "Accès interdit : Vous devez être connecté pour reforger.";
+        exit;
+    }
     $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->updateBuild((int)$matches[1]);
     exit;
@@ -195,6 +210,11 @@ if (preg_match('#^/builds/edit/(\d+)$#', $uri, $matches) && $method === 'POST') 
 
 //Delete a build route
 if (preg_match('#^/builds/delete/(\d+)$#', $uri, $matches) && $method === 'POST') {
+    $buildId = (int)$matches[1];
+    if (!isset($_SESSION['user'])) { //protection against unauthenticated people
+        header('Location: /login');
+        exit;
+    }
     $controller = new \Diablo\Controller\Web\BuildController($request, $buildRepository, $userRepository);
     $controller->deleteBuild((int)$matches[1]);
     exit;
