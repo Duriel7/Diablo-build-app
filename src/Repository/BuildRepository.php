@@ -43,14 +43,9 @@ class BuildRepository {
     
     //Raw SQL method to catch all builds with author ID and paginated
     public function SqlGetAllBuildsPaginated(string $searchTerm, int $limit, int $offset): array {
-        $sql = "
-            SELECT 
-                b.id, b.name, b.characterClass, b.description, b.game, b.createdAt,
-                b.imageRepository, b.imageFileName,
-                u.nickname AS authorNickname
-            FROM builds b
-            JOIN users u ON u.id = b.author_id
-        ";
+        $sql = "SELECT b.*, u.nickname as author_name 
+              FROM builds b 
+              JOIN users u ON u.id = b.author_id";
 
         if (!empty($searchTerm)) {
             $sql .= " WHERE (b.name LIKE :search1 OR b.characterClass LIKE :search2 OR b.game LIKE :search3) ";
@@ -71,7 +66,26 @@ class BuildRepository {
         $statement->bindValue(':offset', $offset, \PDO::PARAM_INT);
 
         $statement->execute();
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $buildsArray = [];
+        foreach ($results as $result) {
+            $build = new Build();
+            $build->setId($result['id']);
+            $build->setName($result['name']);
+            $build->setCharacterClass($result['characterClass']);
+            $build->setDescription($result['description']);
+            $build->setAuthorId($result['author_id']);
+            $build->setGame($result['game']);
+            $build->setIsDraft((bool)$result['isDraft']);
+            $build->setVersion($result['version']);
+            $build->setCreatedAt(new \DateTimeImmutable($result['createdAt']));
+            $build->setUpdatedAt($result['updatedAt'] ? new \DateTime($result['updatedAt']) : null);
+            $build->setImageRepository($result['imageRepository']);
+            $build->setImageFileName($result['imageFileName']);
+            $buildsArray[] = $build;
+        }
+        return $buildsArray;
     }
 
     //Counter function

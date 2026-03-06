@@ -46,7 +46,6 @@ class UserService {
       }
       return null;
     } catch (e) {
-      print("Erreur : $e");
       return null;
     }
   }
@@ -71,7 +70,6 @@ class UserService {
           if (data['token'] != null) {
             userMap['token'] = data['token'].toString();
           }
-          print("DONNÉES USER REÇUES DU SERVEUR : $userMap");
           await saveUserLocally(userMap);
           triggerSuccessVibration();
           return;
@@ -81,7 +79,6 @@ class UserService {
       throw responseData['message'] ?? "Identifiants invalides.";
 
     } catch (e) {
-      print("Erreur de login : $e");
       rethrow; 
     }
   }

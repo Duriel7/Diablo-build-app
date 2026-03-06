@@ -23,7 +23,7 @@
                 </h1>
                 <p class="badge bg-primary">{{ user.role|upper }}</p>
                 <hr class="border-secondary">
-                <p><strong>Ville :</strong> {{ user.city }}</p>
+                <p><strong>Ville :</strong> {{ user.city }} / Coordonnées : lat - {{user.latitude}} ; long - {{user.longitude}}</p>
                 <p><strong>Bio :</strong> {{ user.bio ?: "Ce héros n'a pas encore écrit sa légende." }}</p>
                 
                 {% if isOwner %}

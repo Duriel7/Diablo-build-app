@@ -23,7 +23,7 @@ class BuildController extends AbstractWebController
     public function index(): void {
         $searchTerm = $this->request->get('search', '');
         $page = (int)($this->request->get('page', 1));
-        $limit = 10;
+        $limit = 30;
         $offset = ($page - 1) * $limit;
 
         $builds = $this->buildRepository->SqlGetAllBuildsPaginated($searchTerm, $limit, $offset);

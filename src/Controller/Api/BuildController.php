@@ -101,25 +101,35 @@ class BuildController extends AbstractApiController
     public function index(): void {
         $searchTerm = $this->request->get('search', '');
         $page = (int) ($_GET['page'] ?? 1);
-        $limit = (int) ($_GET['limit'] ?? 10);
+        $limit = (int) ($_GET['limit'] ?? 30);
 
         if ($page < 1) $page = 1;
-        if ($limit < 1 || $limit > 100) $limit = 10;
-
         $offset = ($page - 1) * $limit;
 
         $total = $this->buildRepository->SqlCountBuilds($searchTerm);
-        $totalPages = (int) ceil($total / $limit);
-
         $builds = $this->buildRepository->SqlGetAllBuildsPaginated($searchTerm, $limit, $offset);
 
-        $this->json([
-            'success' => true,
-            'page' => $page,
-            'limit' => $limit,
-            'data' => $builds,
-            'total' => $total,
-            'totalPages' => $totalPages,
+        $data = [];
+        foreach ($builds as $build) {
+            $data[] = [
+                'id' => $build->getId(),
+                'name' => $build->getName(),
+                'characterClass' => $build->getCharacterClass(),
+                'description' => $build->getDescription(),
+                'game' => $build->getGame(),
+                'createdAt' => $build->getCreatedAt()->format('Y-m-d H:i:s'),
+                'updatedAt' => $build->getUpdatedAt() ? $build->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+                'image' => $build->getImageRepository() . '/' . $build->getImageFileName(),
+            ];
+        }
+
+        $this->success([
+            'builds' => $data,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => ceil($total / $limit),
+                'total_items' => $total,
+            ]
         ]);
     }
 }

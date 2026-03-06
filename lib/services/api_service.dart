@@ -9,21 +9,22 @@ class ApiService {
   static const String apiPort = String.fromEnvironment('API_PORT', defaultValue: '8080');
   static const String baseUrl = "http://$apiIp:$apiPort/api";
 
-  Future<List<Build>> fetchBuilds() async {
+  Future<List<Build>> fetchBuilds({int page = 1}) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/builds'));
+      final response = await http.get(Uri.parse('$baseUrl/builds?page=$page'));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         
-        final List<dynamic> buildsJson = responseData['data']; 
+        final List<dynamic> buildsJson = responseData['data']['builds'];
         
         return buildsJson.map((item) => Build.fromJson(item)).toList();
       } else {
         throw Exception("Erreur serveur : ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Erreur de connexion : $e");
+      print("Erreur de connexion : $e");
+      return [];
     }
   }
 
